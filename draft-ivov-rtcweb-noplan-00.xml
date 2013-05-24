@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
+
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd">
+
+<rfc category="std" ipr="trust200902"
+     docName="draft-ivov-rtcweb-noplan-00">
+
+<?rfc toc='yes' ?>
+<?rfc symrefs='yes' ?>
+<?rfc sortrefs='yes'?>
+<?rfc iprnotified='no' ?>
+<?rfc strict='yes' ?>
+<?rfc compact='yes' ?>
+  <front>
+    <title abbrev="No Plan: SDP O/A with Multiple SSRCs ">No Plan:
+      Economic Using of the Offer/Answer Model with Multiple Media
+      Sources
+    </title>
+
+    <author initials='E.' surname='Ivov' fullname='Emil Ivov'>
+      <organization abbrev='Jitsi'>Jitsi</organization>
+      <address>
+        <postal>
+          <street></street>
+          <city>Strasbourg</city>
+          <code>67000</code>
+          <country>France</country>
+        </postal>
+        <phone>+33-672-811-555</phone>
+        <email>emcho@jitsi.org</email>
+      </address>
+    </author>
+    <date/>
+
+    <abstract>
+      <t>
+        This document a model for lightweight use of SDP Offer/Answer in
+        WebRTC. The goal is to minimize the number of Offer/Answer
+        exchanges in a WebRTC session and leave to applications the
+        freedom to implement the signalling that they may need in a way
+        that best fits their requirements and topologies. This includes
+        signalling multiple media sources or providing identification in
+        multi-party sessions.
+      </t>
+    </abstract>
+  </front>
+  <middle>
+    <section title='Introduction' anchor="intro">
+      <t>
+        In its early stages the RTCWEB working group chose to use the
+        Session Description Protocol (SDP) and the Offer/Answer model
+        <xref target="RFC3264"/> when establishing and
+        negotiating sessions. This choice was also accompanied by the
+        decision not to mandate a specific signalling protocol so that,
+        once interoperability has been achieved, web applications can
+        choose the semantics that best fit their requirements. In some
+        scenarios however, such as those involving the use of multiple
+        media sources, these choices have left open the issue of exactly
+        which operations should be handled by SDP Offer/Answer and which
+        of them should be left to application-specific signalling.
+      </t>
+      <t>
+        At the time of writing of this document, the RTCWEB working
+        group is considering two approaches to addressing the issue,
+        that are often referred to as Plan A
+        <xref target="PlanA"/> and Plan B
+        <xref target="PlanB"/>.
+      </t>
+    </section>
+    <section title="Security Considerations" anchor="security">
+      <t>
+        None.
+      </t>
+    </section>
+    <section title="IANA Considerations" anchor="iana">
+      <t>
+        None.
+      </t>
+    </section>
+  </middle>
+
+  <back>
+    <references title='Normative References'>
+      <?rfc include="reference.RFC.4575"?>
+    </references>
+    <references title='Informative References'>
+      <?rfc include="reference.RFC.3264"?>
+    <!--
+      <?rfc include="reference.I-D.roach-rtcweb-plan-a"?>
+    -->
+      <reference anchor="PlanA"
+                 target="reference.I-D.roach-rtcweb-plan-a">
+        <front>
+          <title>Using SDP with Large Numbers of Media Flows</title>
+          <author initials="A. B." surname="Roach"
+                  fullname="Adam Roach">
+            <organization abbrev='Mozilla'>Mozilla</organization>
+          </author>
+          <date month="May" day="07" year="2013" />
+        </front>
+        <seriesInfo name='Internet-Draft'
+                    value='reference.I-D.roach-rtcweb-plan-a' />
+      </reference>
+      <reference anchor="PlanB"
+                 target="reference.I-D.uberti-rtcweb-plan">
+        <front>
+          <title>Using SDP with Large Numbers of Media Flows</title>
+          <author initials="J." surname="Uberti"
+                  fullname="Adam Roach">
+            <organization abbrev='Google'>Google</organization>
+          </author>
+          <date month="May" day="03" year="2013" />
+        </front>
+        <seriesInfo name='Internet-Draft'
+                    value='reference.I-D.uberti-rtcweb-plan' />
+      </reference>
+    </references>
+    <section title='Acknowledgements'>
+      <t>
+
+      </t>
+    </section>
+  </back>
+
+</rfc>
