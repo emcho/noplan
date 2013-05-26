@@ -35,18 +35,18 @@
 
     <abstract>
       <t>
-        This document a model for lightweight use of SDP Offer/Answer in
-        WebRTC. The goal is to minimize reliance on Offer/Answer
-        exchanges in a WebRTC session and provide applications with the
-        tools necessary to implement the signalling that they may need
-        in a way that best fits their requirements and topologies. This
-        simplifies signalling of multiple media sources or providing
-        RTP Synchronisation source (SSRC) identification in multi-party
-        sessions. Another important goal of this model is to remove from
-        clients topological constraints such as the requirement to know
-        all SSRC identifiers that they could potentially introduce in a
-        particular session and the need to announce them prior to
-        actually sending them.
+        This document describes a model for the lightweight use of SDP
+        Offer/Answer in WebRTC. The goal is to minimize reliance on
+        Offer/Answer exchanges in a WebRTC session and provide
+        applications with the tools necessary to implement the
+        signalling that they may need in a way that best fits their
+        custom requirements and topologies. This simplifies signalling
+        of multiple media sources or providing RTP Synchronisation
+        source (SSRC) identification in multi-party sessions. Another
+        important goal of this model is to remove from clients
+        topological constraints such as the requirement to know in
+        advance all SSRC identifiers that they could potentially
+        introduce in a particular session.
       </t>
       <t>
         This document does not question the use of SDP and the
@@ -77,7 +77,7 @@
         Plan B <xref target="PlanB"/>. Both of them describe semantics
         that require Offer/Answer exchanges in a number of situations
         where this could be avoided, particularly when adding or
-        removing a media source to a session. This requirement applies
+        removing media sources to a session. This requirement applies
         equally to cases where a client adds the stream of a newly
         activated web cam, a simulcast flow or upon the arrival or
         departure of a conference participant.
@@ -127,9 +127,9 @@
       <t>
         By increasing the number of Offer/Answer exchanges Both Plan A
         and Plan B also increase the risk of encountering glare
-        situations (i.e. cases where both parties in a session attempt
-        to change the session at the same time). While glare is possible
-        with basic Offer/Answer and resolution of such situations must
+        situations (i.e. cases where both parties attempt to modify a
+        session at the same time). While glare is also possible with
+        basic Offer/Answer and resolution of such situations must
         be implemented anyway, the need to frequently resort to such
         code may either negatively impact user experience (e.g. when
         "back off" resolution is used) or require substantial
@@ -147,20 +147,19 @@
       <t>
         <list style="symbols">
           <t>
-            the  addition and removal of alternative media
-            sources (e.g. conference participants, multiple web cams
-            or "slides" ) must be possible without the need of
-            Offer/Answer exchanges
+            the  addition and removal of media sources (e.g. conference
+            participants, multiple web cams or "slides" ) must be
+            possible without the need of Offer/Answer exchanges;
           </t>
           <t>
             call establishment must not require preliminary announcement
-            or even knowledge knowledge of all potentially participating
-            media sources.
+            or even knowledge of all potentially participating media
+            sources;
           </t>
           <t>
             application specific signalling should be used to cover most
             semantics following call establishment, such as adding,
-            removing or identifying SSRCs.
+            removing or identifying SSRCs;
           </t>
           <t>
             straightforward interoperability with widely deployed legacy
@@ -170,7 +169,7 @@
             to render a single RTP stream at a time for any of them.
             (Note that this does not include devices that expect to see
             multiple "m=video" lines for different SSRCs as they can
-            hardly be viewed as "widely deployed legacy")
+            hardly be viewed as "widely deployed legacy").
           </t>
         </list>
       </t>
@@ -186,11 +185,11 @@
       </t>
       <t>
         All other session control and signalling are to be left to
-        applications. app-specific signalling: SDP, xmpp, rfc4575, clue</t>
-
+        applications.
+      </t>
       <t>
-        The actual semantics presented here do not differ fundamentally
-        from those proposed by Plan A and Plan B. The main
+        The actual Offer/Answer semantics presented here do not differ
+        fundamentally from those proposed by Plan A and Plan B. The main
         differentiation point of this approach is the fact that the
         exact protocol mechanism is left to WebRTC applications. Such
         applications or lightweight signalling gateways can then
@@ -289,7 +288,7 @@ a=max-recv-ssrc:{*:4}                     // number of SSRCs
       </t>
       <t>
       </t>
-      <section title="Interoperability with Legacy" anchor="legacy">
+      <section title="Interoperability with Legacy" anchor="interop">
         <t>
           Interoperating with legacy endpoints was one of the main
           reasons for the RTCWEB working group to choose the SDP
@@ -318,6 +317,10 @@ a=max-recv-ssrc:{*:4}                     // number of SSRCs
             <t>
               Possibly have features such as ICE, BUNDLE, RTCP-MUX, etc.
               Just as likely not to.
+            </t>
+            <t>
+              Very unlikely to announce in SDP the SSRCs that they
+              intend to use for a given sessino.
             </t>
             <t>
               Exact set of features and capabilities: Guaranteed to be
@@ -354,7 +357,7 @@ a=max-recv-ssrc:{*:4}                     // number of SSRCs
           indicate support for a maximum number of incoming or outgoing
           streams for reasons such as processing constraints. Use of the
           "max-send-ssrc" and "max-recv-ssrc" attributes
-          <xref target="max-ssrc"/> could be one way of doing this. It
+          <xref target="MAX-SSRC"/> could be one way of doing this. It
           is important however, not to rely on the presence of that
           indication in incoming descriptions as well as to provide
           applications with a way of retrieving such capabilities from
@@ -376,58 +379,294 @@ a=max-recv-ssrc:{*:4}                     // number of SSRCs
           legacy endpoints but it is also likely to be mishandled by
           many of them and cause unexpected behaviour.
         </t>
+        <t>
+          Finally, it is also worth pointing out that there is a
+          significant number of feature rich non-WebRTC applications and
+          devices that have relatively advanced, modern sets of
+          capabilities. Such endpoints hardly fit the "legacy"
+          qualification. Yet, as is often the case with novel and/or
+          proprietary applications, they too have adopted diverse
+          signalling mechanisms and the requirements described in this
+          section fully apply when it comes to interoperating with them.
+        </t>
       </section>
     </section>
     <section title="Additional Session Control and Signalling"
              anchor="session-control">
       <t>
-        opishi case-a na cullen s razlichnite m=line-ove
-        TBD.
+        <list style="symbols">
+          <t>
+            Adding and removing RTP streams to an existing session.
+          </t>
+          <t>
+            Accepting and refusing some of them.
+          </t>
+          <t>
+            Identifying SSRCs and obtaining additional metadata for
+            them (e.g. the user corresponding to a specific SSRC).
+          </t>
+        </list>
       </t>
-    </section>
-    <section title="Security Considerations" anchor="security">
       <t>
-        None.
+        All of the above semantics are best handled and hence should be
+        left to applications. There are numerous existing or emerging
+        solutions, some of them developed by the IETF, that already
+        cover this. Among them: CLUE channels <xref target="CLUE"/>, the
+        SIP Event Package For Conference State <xref target="RFC4575"/>
+        and its XMPP variant <xref target="COIN"/>. Additional
+        mechanisms, undoubtedly many based on JSON, are very likely to
+        emerge in the future as WebRTC applications address varying use
+        cases, scenarios and topologies.
+      </t>
+      <t>
+        The most important part of this specification is hence to
+        prevent certain assumptions or topologies from being imposed on
+        applications. One example of this is the need to know and
+        include in the Offer/Answer exchange, all the SSRCs that can
+        show up in a session. This can be particularly problematic for
+        scenarios that involve non-WebRTC endpoints.
+      </t>
+      <t>
+        Large scale conference calls, potentially federated through
+        RTP translator-like bridges, would be another problematic
+        scenario. Being able to always pre-announce SSRCs in such
+        situations could of course be made to work but it would come at
+        a price. It would either require a very high number of
+        Offer/Answer updates that propagate the information through the
+        entire topology, or use of tricks such as pre-allocating a range
+        of "fake" SSRCs, announcing them to participants and then
+        overwriting the actual SSRCs with them. Depending on the
+        scenario both options could prove inappropriate or inefficient
+        as some applications may not even need such information while
+        others may be retrieving it through simplistic means such as
+        access to a centralized resource (e.g. an URL pointing to a JSON
+        description of the conference).
       </t>
     </section>
     <section title="Demultiplexing and Identifying Streams (Use of Bundle)"
              anchor="bundle">
       <t>
-        None.
+        This document assumes use of BUNDLE in WebRTC endpoints. This
+        implies that all RTP streams are likely to end up being received
+        on the same port. A demuxing mechanism is therefore necessary in
+        order for these packets to then be fed into the appropriate
+        processing chain (i.e. matched to an m= line).
+      </t>
+      <t>
+        <list>
+          <t>Note: it is important to distinguish between the
+            demultiplexing and identifying incoming flows. Throughout
+            this specification the former is used to refer to the
+            process of choosing selecting a
+            depacketizing/decoding/processing chain to feed incoming
+            packets to. Such decisions depend solely on the format that
+            is used to encode the content of incoming packets.
+          </t>
+          <t>
+            This is not to be confused with the process of making
+            rendering decision about a processed flow. Such decisions
+            include showing a "current speaker" flow at a specific
+            location, window or video tag, while choosing a different
+            one for a second, "slides" flow, and also the possibility to
+            attach "Alice", "Bob" and "Carol" labels on top of the
+            appropriate UI components. This specification leaves such
+            rendering choices entirely to application-specific 
+            signalling as described in <xref target="session-control"/>.
+          </t>
+        </list>
+      </t>
+      <t>
+        This specification uses demuxing based on RTP payload types.
+        When creating offers and answers WebRTC applications MUST
+        therefore allocate RTP payload types only once per bundle group.
+        In cases where rtcp-mux is in use this would mean a total of 96
+        payload types per bundle <xref target="RFC5761"/>. It has been
+        pointed out that some legacy devices may have unpredictable
+        behaviour with payload types that are outside the 96-127 range
+        reserved by <xref target="RFC3551"/> so some applications or
+        implementations may choose not to use values outside this range.
+        Whatever the reason, offerers that find they need more than the
+        available payload type numbers, will simply need to either use a
+        second bundle group or not use BUNDLE at all (which in the case
+        of a single audio and a single video m= line amounts to roughly
+        the same thing).
+      </t>
+      <t>
+        While not desirable, the implications of such a decision would
+        be relatively limited. Use of trickle ICE
+        <xref target="TRICKLE-ICE"/> is going to lessen the impact on
+        call establishment latency. Also, the fact that this would only
+        occur in a limited number of cases makes it unlikely to have
+        a significant effect on port consumption.
+      </t>
+      <t>
+        An additional requirement that has been expressed toward
+        demuxing is the ability to assign incoming packets with the same
+        payload type to different processing chains depending on their
+        SSRCs. A possible example for this is a scenario where two video
+        streams are being rendered on different video screens that each
+        have their own decoding hardware.
+      </t>
+      <t>
+        While the above may appear as a demuxing and a decoding related
+        problem it is really mostly a rendering policy specific to an
+        application. As such it should be handled by app. specific
+        signalling that could involve custom-formatted, per-SSRC
+        information that accompanies SDP offers and answers.
       </t>
     </section>
-    <section title="Simulcasting, FEC and RTX"
+    <section title="Simulcasting, FEC and RTX (Open Issue)"
              anchor="repair-flows">
       <t>
-        None.
+        From a WebRTC perspective, repair flows such as FEC, RTX and to
+        some extent simulcasting, present an interesting challenge,
+        which is why they are considered an open issue by this
+        specification.
+      </t>
+      <t>
+        On the one hand they are transport utilities that need to be
+        understood, supported and used by browsers in a way that is
+        mostly transparent to applications. On the other, some
+        applications may need to be made aware of them and given the
+        option to control their use. This could be necessary in cases
+        where their use needs to be signalled to non-WebRTC endpoints
+        in an application specific way. Another example is the
+        possibility for an application to choose to disable some or all
+        repair flows because it has been made aware by
+        application-specific signalling that they are temporarily not
+        being used/rendered by the remote end (e.g. because it is only
+        displaying a thumbnail or because a corresponding video tag
+        is not currently visible).
+      </t>
+      <t>
+        One way of handling such flows would be to advertise them in the
+        way suggested by <xref target="RFC5956"/> and to then control
+        them through application specific signalling. This options has
+        the merit of already existing but it also implies the
+        pre-announcement and propagation of SSRCs.
+      </t>
+      <t>
+        Another approach could be a combination of RTCP and
+        RTP header extensions <xref target="RFC5285"/> in a way similar
+        to the use in the Rapid Synchronisation of RTP Flows
+        <xref target="RFC6051"/>. While such a mechanism is not
+        currently defined by the IETF, specifying it could be relatively
+        straightforward:
+      </t>
+      <t>
+        Every packet belonging to a repair flow could carry a header
+        extension that points to the source stream (or source layer in
+        case of layered mechanisms). The following shows one possible
+        way how that this could be signaled:
+      </t>
+      <t>
+      <figure>
+          <artwork align="left" xml:space="preserve">
+<![CDATA[
+a=extmap:3 urn:ietf:params:rtp-hdrext:fec-source-ssrc
+]]>
+          </artwork>
+        </figure>
+        and how the actual header extension could look in an RTP packet:
+        <figure>
+          <artwork align="left" xml:space="preserve">
+  0                   1                   2                   3
+  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+ +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ |V=2|P|1|  CC   |M|     PT      |       sequence number         |
+ +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+R
+ |                           timestamp                           |T
+ +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+P
+ |           synchronisation source (SSRC) identifier            |
+ +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+ |       0xBE    |    0xDE       |           length=3            |
+ +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+E
+ |  ID-3 | L=3   |          SSRC of the source RTP flow   ...    |x
+ +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+t
+ |      ...      |    0 (pad)    |    0 (pad)    |    0 (pad)    |n
+ +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+ |                         payload data                          |
+ |                             ....                              |
+ +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+          </artwork>
+        </figure>
+      </t>
+      <t>
+        In cases where FEC or simulcast relations are not immediately
+        needed by the recipient, the above information could also be
+        delayed until the reception of the first RTCP packet.
       </t>
     </section>
     <section title="WebRTC API Requirements"
                  anchor="webrtc-reqs">
       <t>
-        None.
+        One of the main characteristics of this specification is the
+        use of SDP for transport channel setup and media stack
+        initialisation only. In order for applications to be able to
+        cover everything else it is important that WebRTC APIs actually
+        allow for it. Given the initial directions taken by early
+        implementations and specification work, this is currently almost
+        but not entirely possible.
       </t>
-    </section>
-    <section title="Open Issues"
-                     anchor="open-issues">
       <t>
-        None.
+        The following is a list of requirements that the WebRTC APIs
+        would need to satisfy in order for this specification to be
+        usable. (Note: some of the items are already possible and are
+        only included for the sake of completeness.)
+      </t>
+      <t>
+        <list style="numbers">
+          <t>
+            Expose the SSRCs of all local MediaStreamTrack-s that the
+            application may want to attach to a PeerConnection.
+          </t>
+          <t>
+            Expose the SSRCs of all remote MediaStreamTrack-s that are
+            received on a PeerConnection
+          </t>
+          <t>
+            Expose to applications all locally generated repair flows
+            that exist for a source (e.g. FEC and RTX flows that will be
+            generated for a webcam) their types relations and SSRCs.
+          </t>
+          <t>
+            Expose information about the maximum number of incoming
+            streams that can be decoded and rendered.
+          </t>
+          <t>
+            Applications should be able to pause and resume (disable and
+            enable) any MediaStreamTrack. This should also include the
+            possibility to do so for specific repair flows.
+          </t>
+          <t>
+            Information about how certain MediaStreamTrack-s relate to
+            each other (e.g. a given audio flow is related to
+            a specific video flow) may be exchanged by applications
+            after media has started arriving. At that point the
+            corresponding MediaStreamTrack-s may have been announced
+            to the application within independent MediaStream-s. It
+            should therefore be possible for applications to join such
+            tracks within a single MediaStream.
+          </t>
+        </list>
       </t>
     </section>
-
     <section title="IANA Considerations" anchor="iana">
       <t>
         None.
       </t>
     </section>
   </middle>
-
   <back>
-    <references title='Normative References'>
-      <?rfc include="reference.RFC.4575"?>
-    </references>
     <references title='Informative References'>
       <?rfc include="reference.RFC.3264"?>
+      <?rfc include="reference.RFC.3551"?>
+      <?rfc include="reference.RFC.4575"?>
+      <?rfc include="reference.RFC.5285"?>
+      <?rfc include="reference.RFC.5761"?>
+      <?rfc include="reference.RFC.5956"?>
+      <?rfc include="reference.RFC.6015"?>
+      <?rfc include="reference.RFC.6051"?>
     <!--
       <?rfc include="reference.I-D.roach-rtcweb-plan-a"?>
     -->
@@ -500,7 +739,7 @@ a=max-recv-ssrc:{*:4}                     // number of SSRCs
       </reference>
 
       <!-- MAX-SSRC -->
-      <reference anchor="max-ssrc"
+      <reference anchor="MAX-SSRC"
                  target="reference.I-D.westerlund-avtcore-max-ssrc">
         <front>
           <title>Multiple Synchronization sources (SSRC) in RTP Session
@@ -510,7 +749,7 @@ a=max-recv-ssrc:{*:4}                     // number of SSRCs
                   surname="Westerlund">
             <organization>Ericsson</organization>
           </author>
-          <author fullname="Bo  Burman" initials="B." surname="Burman">
+          <author fullname="Bo Burman" initials="B." surname="Burman">
             <organization>Ericsson</organization>
           </author>
           <author fullname="Fredrik Jansson" initials="F."
@@ -523,11 +762,81 @@ a=max-recv-ssrc:{*:4}                     // number of SSRCs
                     value='reference.I-D.westerlund-avtcore-max-ssrc' />
       </reference>
 
+      <!-- CLUE -->
+      <reference anchor="CLUE"
+                 target="reference.I-D.ietf-clue-framework">
+        <front>
+          <title>Framework for Telepresence Multi-Streams</title>
+          <author fullname="Mark Duckworth" initials="M."
+                  surname="Duckworth">
+            <organization>Polycom</organization>
+          </author>
+          <author fullname="Andrew Pepperell" initials="A."
+                  surname="Pepperell">
+            <organization>Acano</organization>
+          </author>
+          <author fullname="Stephan Wenger" initials="S."
+                  surname="Wenger">
+            <organization>Vidyo</organization>
+          </author>
+          <date day="16" month="May" year="2013"/>
+        </front>
+        <seriesInfo name='Internet-Draft'
+                    value='reference.I-D.ietf-clue-framework' />
+      </reference>
+
+      <!-- COIN -->
+      <reference anchor="COIN"
+                 target="reference.I-D.ietf-coin-framework">
+        <front>
+          <title>XEP-0298: Delivering Conference Information to Jingle
+                 Participants (Coin)</title>
+          <author fullname="Emil Ivov" initials="E."
+                  surname="Ivov">
+            <organization>Jitsi</organization>
+          </author>
+          <author fullname="Enrico Marocco" initials="E."
+                  surname="Marocco">
+            <organization>Telecom Italia Labs</organization>
+          </author>
+          <date day="09" month="June" year="2011"/>
+        </front>
+        <seriesInfo name="XSF XEP" value="0298"/>
+        <format type="HTML"
+                target="http://xmpp.org/extensions/xep-0298.html"/>
+      </reference>
+
+      <!-- Trickle ICE -->
+      <reference anchor="TRICKLE-ICE"
+                 target="reference.I-D.ivov-mmusic-trickle-ice">
+        <front>
+          <title abbrev='Trickle ICE'>
+            Trickle ICE: Incremental Provisioning of Candidates for the
+            Interactive Connectivity Establishment (ICE) Protocol
+          </title>
+          <author initials='E.' surname='Ivov'
+                  fullname='Emil Ivov'>
+            <organization abbrev='Jitsi'>Jitsi</organization>
+          </author>
+          <author fullname="Eric Rescorla" initials="E.K."
+                  surname="Rescorla">
+            <organization>RTFM, Inc.</organization>
+          </author>
+          <author fullname="Justin Uberti" initials="J."
+                  surname="Uberti">
+            <organization>Google</organization>
+          </author>
+          <date day="11" month="March" year="2013"/>
+        </front>
+        <seriesInfo name='Internet-Draft'
+                    value='reference.I-D.ivov-mmusic-trickle-ice' />
+      </reference>
     </references>
     <section title='Acknowledgements'>
       <t>
-        Many thanks to Enrico Marocco for reviewing and providing
-        crucial feedback to this document.
+        Many thanks to Enrico Marocco for reviewing this document and
+        providing numerous comments and substantial input for this
+        document.
       </t>
     </section>
   </back>
