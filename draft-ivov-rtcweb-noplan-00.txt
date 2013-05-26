@@ -1,0 +1,503 @@
+
+
+
+
+Network Working Group                                            E. Ivov
+Internet-Draft                                                     Jitsi
+Intended status: Standards Track                            May 26, 2013
+Expires: November 27, 2013
+
+
+  No Plan: Economical Use of the Offer/Answer Model in WebRTC Sessions
+                    with with Multiple Media Sources
+                      draft-ivov-rtcweb-noplan-00
+
+Abstract
+
+   This document a model for lightweight use of SDP Offer/Answer in
+   WebRTC.  The goal is to minimize reliance on Offer/Answer exchanges
+   in a WebRTC session and provide applications with the tools necessary
+   to implement the signalling that they may need in a way that best
+   fits their requirements and topologies.  This simplifies signalling
+   of multiple media sources or providing RTP Synchronisation source
+   (SSRC) identification in multi-party sessions.  Another important
+   goal of this model is to remove from clients topological constraints
+   such as the requirement to know all SSRC identifiers that they could
+   potentially introduce in a particular session and the need to
+   announce them prior to actually sending them.
+
+   This document does not question the use of SDP and the Offer/Answer
+   model or the value they have in terms of interoperability with legacy
+   or other non-WebRTC devices.
+
+Status of This Memo
+
+   This Internet-Draft is submitted in full conformance with the
+   provisions of BCP 78 and BCP 79.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF).  Note that other groups may also distribute
+   working documents as Internet-Drafts.  The list of current Internet-
+   Drafts is at http://datatracker.ietf.org/drafts/current/.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   This Internet-Draft will expire on November 27, 2013.
+
+Copyright Notice
+
+
+
+
+
+Ivov                   Expires November 27, 2013                [Page 1]
+
+Internet-Draft    No Plan: SDP O/A with Multiple SSRCs          May 2013
+
+
+   Copyright (c) 2013 IETF Trust and the persons identified as the
+   document authors.  All rights reserved.
+
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents
+   (http://trustee.ietf.org/license-info) in effect on the date of
+   publication of this document.  Please review these documents
+   carefully, as they describe your rights and restrictions with respect
+   to this document.  Code Components extracted from this document must
+   include Simplified BSD License text as described in Section 4.e of
+   the Trust Legal Provisions and are provided without warranty as
+   described in the Simplified BSD License.
+
+Table of Contents
+
+   1.  Background  . . . . . . . . . . . . . . . . . . . . . . . . .   2
+   2.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   4
+   3.  Reliance on Offer/Answer  . . . . . . . . . . . . . . . . . .   4
+     3.1.  Interoperability with Legacy  . . . . . . . . . . . . . .   6
+   4.  Additional Session Control and Signalling . . . . . . . . . .   7
+   5.  Security Considerations . . . . . . . . . . . . . . . . . . .   8
+   6.  Demultiplexing and Identifying Streams (Use of Bundle)  . . .   8
+   7.  Simulcasting, FEC and RTX . . . . . . . . . . . . . . . . . .   8
+   8.  WebRTC API Requirements . . . . . . . . . . . . . . . . . . .   8
+   9.  Open Issues . . . . . . . . . . . . . . . . . . . . . . . . .   8
+   10. IANA Considerations . . . . . . . . . . . . . . . . . . . . .   8
+   11. References  . . . . . . . . . . . . . . . . . . . . . . . . .   8
+     11.1.  Normative References . . . . . . . . . . . . . . . . . .   8
+     11.2.  Informative References . . . . . . . . . . . . . . . . .   8
+   Appendix A.  Acknowledgements . . . . . . . . . . . . . . . . . .   9
+   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .   9
+
+1.  Background
+
+   In its early stages the RTCWEB working group chose to use the Session
+   Description Protocol (SDP) and the Offer/Answer model [RFC3264] when
+   establishing and negotiating sessions.  This choice was also
+   accompanied by the decision not to mandate a specific signalling
+   protocol so that, once interoperability has been achieved, web
+   applications can choose the semantics that best fit their
+   requirements.  In some scenarios however, such as those involving the
+   use of multiple media sources, these choices have left open the issue
+   of exactly which operations should be handled by SDP Offer/Answer and
+   which of them should be left to application-specific signalling.
+
+   At the time of writing of this document, the RTCWEB working group is
+   considering two approaches to addressing the issue, that are often
+   referred to as Plan A [PlanA] and Plan B [PlanB].  Both of them
+
+
+
+Ivov                   Expires November 27, 2013                [Page 2]
+
+Internet-Draft    No Plan: SDP O/A with Multiple SSRCs          May 2013
+
+
+   describe semantics that require Offer/Answer exchanges in a number of
+   situations where this could be avoided, particularly when adding or
+   removing a media source to a session.  This requirement applies
+   equally to cases where a client adds the stream of a newly activated
+   web cam, a simulcast flow or upon the arrival or departure of a
+   conference participant.
+
+   Plan A handles such notifications with the addition or removal of
+   independent m= lines [PlanA], while Plan B relies on the use of
+   multiplexed m= lines but still depends on the Offer/Answer exchanges
+   for the addition or removal of media stream identifiers [MSID].
+
+   By taking the Offer/Aanswer approach, both Plan A and Plan B take
+   away from the application the opportunity to handle such events in
+   away that is most fitting for the use case, which, among other
+   things, also goes against the working group's decision to not to
+   define a specific signalling protocol.  (It could be argued that it
+   is therefore only natural how proponents of each plan, having
+   different use cases in mind, are remarkably far from reaching
+   consensus).
+
+   Another problem, more specific to Plan B, is the reliance on
+   preliminary announcement of SSRC identifiers for stream
+   identification.  Why this could be perceived as relatively
+   straightforward in one-to-one sessions or even conference calls
+   within controlled environments, it can be a problem in the following
+   cases:
+
+   o  interoperability with legacy/non-WebRTC endpoints
+
+   o  use within non-controlled and potentially federated conference
+      environments where new RTP streams may appear relatively often.
+      In such cases the signalling required to describe all of them
+      through Offer/Answer may represent substantial overhead while none
+      or only a part of it (e.g.  the description of a main, active
+      speaker stream) may be required by the application.
+
+   By increasing the number of Offer/Answer exchanges Both Plan A and
+   Plan B also increase the risk of encountering glare situations (i.e.
+   cases where both parties in a session attempt to change the session
+   at the same time).  While glare is possible with basic Offer/Answer
+   and resolution of such situations must be implemented anyway, the
+   need to frequently resort to such code may either negatively impact
+   user experience (e.g.  when "back off" resolution is used) or require
+   substantial modifications in the Offer/Answer model and/or further
+   venturing into the land of signalling protocols
+   [ROACH-GLARELESS-ADD].
+
+
+
+
+Ivov                   Expires November 27, 2013                [Page 3]
+
+Internet-Draft    No Plan: SDP O/A with Multiple SSRCs          May 2013
+
+
+2.  Introduction
+
+   The goal of this document is to provide directions for use of the SDP
+   Offer/Answer model in a way that satisfies the following
+   requirements:
+
+   o  the addition and removal of alternative media sources (e.g.
+      conference participants, multiple web cams or "slides" ) must be
+      possible without the need of Offer/Answer exchanges
+
+   o  call establishment must not require preliminary announcement or
+      even knowledge knowledge of all potentially participating media
+      sources.
+
+   o  application specific signalling should be used to cover most
+      semantics following call establishment, such as adding, removing
+      or identifying SSRCs.
+
+   o  straightforward interoperability with widely deployed legacy
+      endpoints with rudimentary support for Offer/Answer.  This
+      includes devices that allow for one audio and potentially one
+      video m= line and that expect to only ever be required to render a
+      single RTP stream at a time for any of them.  (Note that this does
+      not include devices that expect to see multiple "m=video" lines
+      for different SSRCs as they can hardly be viewed as "widely
+      deployed legacy")
+
+   To achieve the above requirements this specification expects that
+   browsers and WebRTC endpoints in general will only use SDP Offer/
+   Answer to establish transport channels and initialize an RTP stack
+   and codec/processing chains.  This also includes any renegotiation
+   that requires the re-initialisation of these chains.  For example,
+   adding VP8 to a session that was setup with only H.264, would
+   obviously still require an Offer/Answer exchange.
+
+   All other session control and signalling are to be left to
+   applications.  app-specific signalling: SDP, xmpp, rfc4575, clue
+
+   The actual semantics presented here do not differ fundamentally from
+   those proposed by Plan A and Plan B.  The main differentiation point
+   of this approach is the fact that the exact protocol mechanism is
+   left to WebRTC applications.  Such applications or lightweight
+   signalling gateways can then implement either Plan A, or Plan B, or
+   an entirely different signalling protocol, depending on what best
+   matches their use cases and topology.
+
+3.  Reliance on Offer/Answer
+
+
+
+
+Ivov                   Expires November 27, 2013                [Page 4]
+
+Internet-Draft    No Plan: SDP O/A with Multiple SSRCs          May 2013
+
+
+   The model presented in this specification relies on use of SDP and
+   Offer/Answer in quite the same way as many of the pre-WebRTC (and
+   most of the legacy) endpoints do: negotiating formats, establishing
+   transport channels and exchanging, in a declarative way, media and
+   transport parameters that are then used for the initialization of the
+   corresponding stacks.
+
+   The following is an example presenting what this specification views
+   as a typical offer sent by a WebRTC endpoint:
+
+
+   v=0
+   o=- 0 0 IN IP4 198.51.100.33
+   s=
+   t=0 0
+
+   a=group:BUNDLE audio video                // declaring BUNDLE Support
+   c=IN IP4 198.51.100.33
+   a=ice-ufrag:Qq8o/jZwknkmXpIh              // initializing ICE
+   a=ice-pwd:gTMACiJcZv1xdPrjfbTHL5qo
+   a=ice-options:trickle
+   a=fingerprint:sha-1                       // DTLS-SRTP keying
+         a4:b1:97:ab:c7:12:9b:02:12:b8:47:45:df:d8:3a:97:54:08:3f:16
+
+   m=audio 5000 RTP/SAVPF 96 0 8
+   a=mid:audio
+   a=rtcp-mux
+
+   a=rtpmap:96 opus/48000/2                  // PT mappings
+   a=rtpmap:0 PCMU/8000
+   a=rtpmap:8 PCMA/8000
+
+   a=extmap:1 urn:ietf:params:rtp-hdrext:csrc-audio-level  //5825 header
+   a=extmap:2 urn:ietf:params:rtp-hdrext:ssrc-audio-level  //extensions
+
+   [ICE Candidates]
+
+   m=video 5002 RTP/SAVPF 97 98
+   a=mid:video
+   a=rtcp-mux
+
+
+   a=rtpmap:97 VP8/90000        // PT mappings and resolutions capabilities
+   a=imageattr:97 send [x=[0-640],y=[0-480]] recv [x=[0-1920],y=[0-1200]]
+   a=rtpmap:98 H264/90000
+   a=imageattr:98 send [x=[0-1280],y=[0-720]] recv [x=[0-1920],y=[0-1200]]
+
+   a=extmap:3 urn:ietf:params:rtp-hdrext:fec-source-ssrc   //5825 header
+
+
+
+Ivov                   Expires November 27, 2013                [Page 5]
+
+Internet-Draft    No Plan: SDP O/A with Multiple SSRCs          May 2013
+
+
+   a=extmap:4 urn:ietf:params:rtp-hdrext:rtx-source-ssrc   //extensions
+
+   a=max-send-ssrc:{*:1}                     // declaring maximum
+   a=max-recv-ssrc:{*:4}                     // number of SSRCs
+
+   [ICE Candidates]
+
+
+
+
+   The answer to the offer above would have roughly the same structure.
+   The most important aspects here are:
+
+   o  Preserves interoperability with most kinds of legacy or non-WebRTC
+      endpoints.
+
+   o  Allow the negotiation of most parameters that concern the media/
+      RTP stack (typically the browser)
+
+   o  Only a single Offer/Answer exchange is required for session
+      establishment
+
+   o  Leave complete freedom to applications as to the way that they are
+      going to signal any other information such as SSRC identification
+      information or the addition or removal of RTP streams.
+
+3.1.  Interoperability with Legacy
+
+   Interoperating with legacy endpoints was one of the main reasons for
+   the RTCWEB working group to choose the SDP Offer/Answer model.  It is
+   important to clarify the compatibility claims that this specification
+   makes.
+
+   A legacy/non-WebRTC endpoint is considered to have the following
+   characteristics:
+
+   o  Likely to use the SIP protocol.
+
+   o  Capability to gracefully handle one audio and potentially one
+      video m= line in an SDP Offer.
+
+   o  Capability to render a maximum of one SSRC per m=line at any given
+      moment but multiple, consecutive SSRCs over a period of time.
+      This would be the case with transferred session replacements for
+      example.
+
+   o  Possibly have features such as ICE, BUNDLE, RTCP-MUX, etc.  Just
+      as likely not to.
+
+
+
+Ivov                   Expires November 27, 2013                [Page 6]
+
+Internet-Draft    No Plan: SDP O/A with Multiple SSRCs          May 2013
+
+
+   o  Exact set of features and capabilities: Guaranteed to be wildly
+      and widely diverse.
+
+   While it is relatively simple for RTCWEB to accommodate some of the
+   above, it is obviously impossible to design a model that could simply
+   be labeled "compatible with legacy".  It is reasonable to assume that
+   use cases involving use of such endpoints will be designed for a
+   relatively specific set of devices and applications.  The role of the
+   WebRTC framework is to hence provide a least-common-denominator model
+   that can then be extended by applications.
+
+   It is just as important not to make choices or assumptions that will
+   render interoperability for some applications or topologies difficult
+   or even impossible.
+
+   This is exactly what the use of Offer/Answer discussed here strives
+   to achieve.  Audio/Video offers originating from WebRTC endpoints
+   will always have a maximum of one audio and one video m= line.  It
+   will be up to applications to determine exactly how many streams they
+   can afford to send once such a session has been established.  The
+   exact mechanism to do this is outside the scope of this document (or
+   WebRTC in general).
+
+   Note that it is still possible for WebRTC endpoints to indicate
+   support for a maximum number of incoming or outgoing streams for
+   reasons such as processing constraints.  Use of the "max-send-ssrc"
+   and "max-recv-ssrc" attributes [max-ssrc] could be one way of doing
+   this.  It is important however, not to rely on the presence of that
+   indication in incoming descriptions as well as to provide
+   applications with a way of retrieving such capabilities from the
+   WebRTC stack (e.g.  the browser).
+
+   Determining whether a peer has the ability to seamlessly switch from
+   one SSRC to another is also left to application specific signalling.
+   It is worth noting that protocols such as SIP for example, often
+   accompany SSRC replacements with extra signalling (re-INVITEs with a
+   "replaces" header) that can easily be reused by applications or
+   mapped to something that they deem more convenient.
+
+   For the sake of interoperability this specification strongly advises
+   against the use of multiple m= lines per media type.  Not only would
+   such use be meaningless to a large number of legacy endpoints but it
+   is also likely to be mishandled by many of them and cause unexpected
+   behaviour.
+
+4.  Additional Session Control and Signalling
+
+   opishi case-a na cullen s razlichnite m=line-ove TBD.
+
+
+
+Ivov                   Expires November 27, 2013                [Page 7]
+
+Internet-Draft    No Plan: SDP O/A with Multiple SSRCs          May 2013
+
+
+5.  Security Considerations
+
+   None.
+
+6.  Demultiplexing and Identifying Streams (Use of Bundle)
+
+   None.
+
+7.  Simulcasting, FEC and RTX
+
+   None.
+
+8.  WebRTC API Requirements
+
+   None.
+
+9.  Open Issues
+
+   None.
+
+10.  IANA Considerations
+
+   None.
+
+11.  References
+
+11.1.  Normative References
+
+   [RFC4575]  Rosenberg, J., Schulzrinne, H., and O. Levin, "A Session
+              Initiation Protocol (SIP) Event Package for Conference
+              State", RFC 4575, August 2006.
+
+11.2.  Informative References
+
+   [MSID]     Alvestrand, H., "Cross Session Stream Identification in
+              the Session Description Protocol", reference.I-D.ietf-
+              mmusic-msid (work in progress), February 2013,
+              <reference.I-D.ietf-mmusic-msid>.
+
+   [PlanA]    Roach, A. B. and M. Thomson, "Using SDP with Large Numbers
+              of Media Flows", reference.I-D.roach-rtcweb-plan-a (work
+              in progress), May 2013, <reference.I-D.roach-rtcweb-
+              plan-a>.
+
+   [PlanB]    Uberti, J., "Plan B: a proposal for signaling multiple
+              media sources in WebRTC.", reference.I-D.uberti-rtcweb-
+              plan (work in progress), May 2013, <reference.I-D.uberti-
+              rtcweb-plan>.
+
+
+
+Ivov                   Expires November 27, 2013                [Page 8]
+
+Internet-Draft    No Plan: SDP O/A with Multiple SSRCs          May 2013
+
+
+   [RFC3264]  Rosenberg, J. and H. Schulzrinne, "An Offer/Answer Model
+              with Session Description Protocol (SDP)", RFC 3264, June
+              2002.
+
+   [ROACH-GLARELESS-ADD]
+              Roach, A. B., "An Approach for Adding RTCWEB Media Streams
+              without Glare", reference.I-D.roach-rtcweb-glareless-add
+              (work in progress), May 2013, <reference.I-D.roach-rtcweb-
+              glareless-add>.
+
+   [max-ssrc]
+              Westerlund, M., Burman, B., and F. Jansson, "Multiple
+              Synchronization sources (SSRC) in RTP Session Signaling ",
+              reference.I-D.westerlund-avtcore-max-ssrc (work in
+              progress), July 2012, <reference.I-D.westerlund-avtcore-
+              max-ssrc>.
+
+Appendix A.  Acknowledgements
+
+   Many thanks to Enrico Marocco for reviewing and providing crucial
+   feedback to this document.
+
+Author's Address
+
+   Emil Ivov
+   Jitsi
+   Strasbourg  67000
+   France
+
+   Phone: +33-672-811-555
+   Email: emcho@jitsi.org
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Ivov                   Expires November 27, 2013                [Page 9]
