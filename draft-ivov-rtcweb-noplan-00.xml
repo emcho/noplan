@@ -262,7 +262,7 @@ a=max-recv-ssrc:{*:4}                     // number of SSRCs
         </figure>
 
         The answer to the offer above would have roughly the same
-        structure. The most important aspects here are:
+        structure and content. The most important aspects here are:
       </t>
       <t>
         <list style="symbols">
@@ -271,15 +271,16 @@ a=max-recv-ssrc:{*:4}                     // number of SSRCs
             non-WebRTC endpoints.
           </t>
           <t>
-            Allow the negotiation of most parameters that concern the
-            media/RTP stack (typically the browser)
+            Allows the negotiation of most parameters that concern the
+            media/RTP stack (typically the browser).
           </t>
           <t>
             Only a single Offer/Answer exchange is required for session
-            establishment
+            establishment and, in most cases, for the entire duraftion
+            of a session.
           </t>
           <t>
-            Leave complete freedom to applications as to the way that
+            Leaves complete freedom to applications as to the way that
             they are going to signal any other information such as
             SSRC identification information or the addition or removal
             of RTP streams.
@@ -290,13 +291,14 @@ a=max-recv-ssrc:{*:4}                     // number of SSRCs
       </t>
       <section title="Interoperability with Legacy" anchor="interop">
         <t>
-          Interoperating with legacy endpoints was one of the main
-          reasons for the RTCWEB working group to choose the SDP
-          Offer/Answer model. It is important to clarify the
-          compatibility claims that this specification makes.
+          Interoperating with the "widely deployed legacy endpoints" is
+          one of the main reasons for the RTCWEB working group to choose
+          the SDP Offer/Answer model as basis for media negotiation. It
+          is hence important to clarify the compatibility claims that
+          this specification makes.
         </t>
         <t>
-          A legacy/non-WebRTC endpoint is considered to have the
+          A "widely deployed legacy endpoint" is considered to have the
           following characteristics:
         </t>
         <t>
@@ -331,8 +333,8 @@ a=max-recv-ssrc:{*:4}                     // number of SSRCs
         <t>
           While it is relatively simple for RTCWEB to accommodate some
           of the above, it is obviously impossible to design a model
-          that could simply be labeled "compatible with legacy". It is
-          reasonable to assume that use cases involving use of such
+          that could simply be labeled as "compatible with legacy". It
+          is reasonable to assume that use cases involving use of such
           endpoints will be designed for a relatively specific set of
           devices and applications. The role of the WebRTC framework is
           to hence provide a least-common-denominator model that can
@@ -374,10 +376,10 @@ a=max-recv-ssrc:{*:4}                     // number of SSRCs
         </t>
         <t>
           For the sake of interoperability this specification strongly
-          advises against the use of multiple m= lines per media type.
-          Not only would such use be meaningless to a large number of
-          legacy endpoints but it is also likely to be mishandled by
-          many of them and cause unexpected behaviour.
+          advises against the use of multiple m= lines for a single
+          media type. Not only would such use be meaningless to a large
+          number of legacy endpoints but it is also likely to be
+          mishandled by many of them and to cause unexpected behaviour.
         </t>
         <t>
           Finally, it is also worth pointing out that there is a
@@ -411,12 +413,13 @@ a=max-recv-ssrc:{*:4}                     // number of SSRCs
         All of the above semantics are best handled and hence should be
         left to applications. There are numerous existing or emerging
         solutions, some of them developed by the IETF, that already
-        cover this. Among them: CLUE channels <xref target="CLUE"/>, the
-        SIP Event Package For Conference State <xref target="RFC4575"/>
-        and its XMPP variant <xref target="COIN"/>. Additional
-        mechanisms, undoubtedly many based on JSON, are very likely to
-        emerge in the future as WebRTC applications address varying use
-        cases, scenarios and topologies.
+        cover this. This includes CLUE channels <xref target="CLUE"/>,
+        the SIP Event Package For Conference State
+        <xref target="RFC4575"/> and its XMPP variant
+        <xref target="COIN"/>. Additional mechanisms, undoubtedly many
+        based on JSON, are very likely to emerge in the future as WebRTC
+        applications address varying use cases, scenarios and
+        topologies.
       </t>
       <t>
         The most important part of this specification is hence to
@@ -437,8 +440,8 @@ a=max-recv-ssrc:{*:4}                     // number of SSRCs
         of "fake" SSRCs, announcing them to participants and then
         overwriting the actual SSRCs with them. Depending on the
         scenario both options could prove inappropriate or inefficient
-        as some applications may not even need such information while
-        others may be retrieving it through simplistic means such as
+        while some applications may not even need such information.
+        Others could be retrieving it through simplistic means such as
         access to a centralized resource (e.g. an URL pointing to a JSON
         description of the conference).
       </t>
@@ -455,23 +458,24 @@ a=max-recv-ssrc:{*:4}                     // number of SSRCs
       <t>
         <list>
           <t>Note: it is important to distinguish between the
-            demultiplexing and identifying incoming flows. Throughout
-            this specification the former is used to refer to the
-            process of choosing selecting a
+            demultiplexing and the identification of incoming flows.
+            Throughout this specification the former is used to refer to
+            the process of choosing selecting a
             depacketizing/decoding/processing chain to feed incoming
             packets to. Such decisions depend solely on the format that
             is used to encode the content of incoming packets.
           </t>
           <t>
-            This is not to be confused with the process of making
+            The above is not to be confused with the process of making
             rendering decision about a processed flow. Such decisions
             include showing a "current speaker" flow at a specific
             location, window or video tag, while choosing a different
-            one for a second, "slides" flow, and also the possibility to
-            attach "Alice", "Bob" and "Carol" labels on top of the
-            appropriate UI components. This specification leaves such
-            rendering choices entirely to application-specific 
-            signalling as described in <xref target="session-control"/>.
+            one for a second, "slides" flow. Another example would be
+            the possibility to attach "Alice", "Bob" and "Carol" labels
+            on top of the appropriate UI components. This specification
+            leaves such rendering choices entirely to
+            application-specific signalling as described in
+            <xref target="session-control"/>.
           </t>
         </list>
       </t>
@@ -479,17 +483,17 @@ a=max-recv-ssrc:{*:4}                     // number of SSRCs
         This specification uses demuxing based on RTP payload types.
         When creating offers and answers WebRTC applications MUST
         therefore allocate RTP payload types only once per bundle group.
-        In cases where rtcp-mux is in use this would mean a total of 96
-        payload types per bundle <xref target="RFC5761"/>. It has been
-        pointed out that some legacy devices may have unpredictable
+        In cases where rtcp-mux is in use this would mean a maximum of
+        96 payload types per bundle <xref target="RFC5761"/>. It has
+        been pointed out that some legacy devices may have unpredictable
         behaviour with payload types that are outside the 96-127 range
-        reserved by <xref target="RFC3551"/> so some applications or
-        implementations may choose not to use values outside this range.
-        Whatever the reason, offerers that find they need more than the
-        available payload type numbers, will simply need to either use a
-        second bundle group or not use BUNDLE at all (which in the case
-        of a single audio and a single video m= line amounts to roughly
-        the same thing).
+        reserved by <xref target="RFC3551"/> for dynamic use. Some
+        applications or implementations may therefore choose not to use
+        values outside this range. Whatever the reason, offerers that
+        find they need more than the available payload type numbers,
+        will simply need to either use a second bundle group or not use
+        BUNDLE at all (which in the case of a single audio and a single
+        video m= line amounts to roughly the same thing).
       </t>
       <t>
         While not desirable, the implications of such a decision would
@@ -543,21 +547,22 @@ a=max-recv-ssrc:{*:4}                     // number of SSRCs
         way suggested by <xref target="RFC5956"/> and to then control
         them through application specific signalling. This options has
         the merit of already existing but it also implies the
-        pre-announcement and propagation of SSRCs.
+        pre-announcement and propagation of SSRCs and everything that
+        follows.
       </t>
       <t>
         Another approach could be a combination of RTCP and
         RTP header extensions <xref target="RFC5285"/> in a way similar
-        to the use in the Rapid Synchronisation of RTP Flows
+        to the one employed by the Rapid Synchronisation of RTP Flows
         <xref target="RFC6051"/>. While such a mechanism is not
         currently defined by the IETF, specifying it could be relatively
         straightforward:
       </t>
       <t>
-        Every packet belonging to a repair flow could carry a header
-        extension that points to the source stream (or source layer in
-        case of layered mechanisms). The following shows one possible
-        way how that this could be signaled:
+        Every packet belonging to a repair flow could carry an RTP
+        header extension <xref target="RFC5285"/> that points to the
+        source stream (or source layer in case of layered mechanisms).
+        The following shows one possible way of signalling this:
       </t>
       <t>
       <figure>
@@ -567,9 +572,11 @@ a=extmap:3 urn:ietf:params:rtp-hdrext:fec-source-ssrc
 ]]>
           </artwork>
         </figure>
-        and how the actual header extension could look in an RTP packet:
+        In this case the actual RTP packet and header extension could
+        look like this:
         <figure>
           <artwork align="left" xml:space="preserve">
+<![CDATA[
   0                   1                   2                   3
   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -583,11 +590,12 @@ a=extmap:3 urn:ietf:params:rtp-hdrext:fec-source-ssrc
  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+E
  |  ID-3 | L=3   |          SSRC of the source RTP flow   ...    |x
  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+t
- |      ...      |    0 (pad)    |    0 (pad)    |    0 (pad)    |n
+ |   ... SSRC    |    0 (pad)    |    0 (pad)    |    0 (pad)    |n
  +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
  |                         payload data                          |
  |                             ....                              |
  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ ]]>
           </artwork>
         </figure>
       </t>

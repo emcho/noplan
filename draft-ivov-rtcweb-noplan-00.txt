@@ -293,31 +293,33 @@ Internet-Draft    No Plan: SDP O/A with Multiple SSRCs          May 2013
 
 
 
-   The answer to the offer above would have roughly the same structure.
-   The most important aspects here are:
+   The answer to the offer above would have roughly the same structure
+   and content.  The most important aspects here are:
 
    o  Preserves interoperability with most kinds of legacy or non-WebRTC
       endpoints.
 
-   o  Allow the negotiation of most parameters that concern the media/
-      RTP stack (typically the browser)
+   o  Allows the negotiation of most parameters that concern the media/
+      RTP stack (typically the browser).
 
    o  Only a single Offer/Answer exchange is required for session
-      establishment
+      establishment and, in most cases, for the entire duraftion of a
+      session.
 
-   o  Leave complete freedom to applications as to the way that they are
-      going to signal any other information such as SSRC identification
-      information or the addition or removal of RTP streams.
+   o  Leaves complete freedom to applications as to the way that they
+      are going to signal any other information such as SSRC
+      identification information or the addition or removal of RTP
+      streams.
 
 3.1.  Interoperability with Legacy
 
-   Interoperating with legacy endpoints was one of the main reasons for
-   the RTCWEB working group to choose the SDP Offer/Answer model.  It is
-   important to clarify the compatibility claims that this specification
-   makes.
+   Interoperating with the "widely deployed legacy endpoints" is one of
+   the main reasons for the RTCWEB working group to choose the SDP Offer
+   /Answer model as basis for media negotiation.  It is hence important
+   to clarify the compatibility claims that this specification makes.
 
-   A legacy/non-WebRTC endpoint is considered to have the following
-   characteristics:
+   A "widely deployed legacy endpoint" is considered to have the
+   following characteristics:
 
    o  Likely to use the SIP protocol.
 
@@ -328,8 +330,6 @@ Internet-Draft    No Plan: SDP O/A with Multiple SSRCs          May 2013
       moment but multiple, consecutive SSRCs over a period of time.
       This would be the case with transferred session replacements for
       example.
-
-
 
 
 
@@ -349,8 +349,8 @@ Internet-Draft    No Plan: SDP O/A with Multiple SSRCs          May 2013
 
    While it is relatively simple for RTCWEB to accommodate some of the
    above, it is obviously impossible to design a model that could simply
-   be labeled "compatible with legacy".  It is reasonable to assume that
-   use cases involving use of such endpoints will be designed for a
+   be labeled as "compatible with legacy".  It is reasonable to assume
+   that use cases involving use of such endpoints will be designed for a
    relatively specific set of devices and applications.  The role of the
    WebRTC framework is to hence provide a least-common-denominator model
    that can then be extended by applications.
@@ -384,8 +384,8 @@ Internet-Draft    No Plan: SDP O/A with Multiple SSRCs          May 2013
    mapped to something that they deem more convenient.
 
    For the sake of interoperability this specification strongly advises
-   against the use of multiple m= lines per media type.  Not only would
-   such use be meaningless to a large number of legacy endpoints but it
+   against the use of multiple m= lines for a single media type.  Not
+   only would such use be meaningless to a large number of legacy
 
 
 
@@ -394,8 +394,8 @@ Ivov                   Expires November 28, 2013                [Page 7]
 Internet-Draft    No Plan: SDP O/A with Multiple SSRCs          May 2013
 
 
-   is also likely to be mishandled by many of them and cause unexpected
-   behaviour.
+   endpoints but it is also likely to be mishandled by many of them and
+   to cause unexpected behaviour.
 
    Finally, it is also worth pointing out that there is a significant
    number of feature rich non-WebRTC applications and devices that have
@@ -416,8 +416,8 @@ Internet-Draft    No Plan: SDP O/A with Multiple SSRCs          May 2013
 
    All of the above semantics are best handled and hence should be left
    to applications.  There are numerous existing or emerging solutions,
-   some of them developed by the IETF, that already cover this.  Among
-   them: CLUE channels [CLUE], the SIP Event Package For Conference
+   some of them developed by the IETF, that already cover this.  This
+   includes CLUE channels [CLUE], the SIP Event Package For Conference
    State [RFC4575] and its XMPP variant [COIN].  Additional mechanisms,
    undoubtedly many based on JSON, are very likely to emerge in the
    future as WebRTC applications address varying use cases, scenarios
@@ -459,10 +459,10 @@ Internet-Draft    No Plan: SDP O/A with Multiple SSRCs          May 2013
    pre-allocating a range of "fake" SSRCs, announcing them to
    participants and then overwriting the actual SSRCs with them.
    Depending on the scenario both options could prove inappropriate or
-   inefficient as some applications may not even need such information
-   while others may be retrieving it through simplistic means such as
-   access to a centralized resource (e.g.  an URL pointing to a JSON
-   description of the conference).
+   inefficient while some applications may not even need such
+   information.  Others could be retrieving it through simplistic means
+   such as access to a centralized resource (e.g.  an URL pointing to a
+   JSON description of the conference).
 
 5.  Demultiplexing and Identifying Streams (Use of Bundle)
 
@@ -473,31 +473,31 @@ Internet-Draft    No Plan: SDP O/A with Multiple SSRCs          May 2013
    chain (i.e.  matched to an m= line).
 
       Note: it is important to distinguish between the demultiplexing
-      and identifying incoming flows.  Throughout this specification the
-      former is used to refer to the process of choosing selecting a
-      depacketizing/decoding/processing chain to feed incoming packets
-      to.  Such decisions depend solely on the format that is used to
-      encode the content of incoming packets.
+      and the identification of incoming flows.  Throughout this
+      specification the former is used to refer to the process of
+      choosing selecting a depacketizing/decoding/processing chain to
+      feed incoming packets to.  Such decisions depend solely on the
+      format that is used to encode the content of incoming packets.
 
-      This is not to be confused with the process of making rendering
-      decision about a processed flow.  Such decisions include showing a
-      "current speaker" flow at a specific location, window or video
-      tag, while choosing a different one for a second, "slides" flow,
-      and also the possibility to attach "Alice", "Bob" and "Carol"
-      labels on top of the appropriate UI components.  This
-      specification leaves such rendering choices entirely to
+      The above is not to be confused with the process of making
+      rendering decision about a processed flow.  Such decisions include
+      showing a "current speaker" flow at a specific location, window or
+      video tag, while choosing a different one for a second, "slides"
+      flow.  Another example would be the possibility to attach "Alice",
+      "Bob" and "Carol" labels on top of the appropriate UI components.
+      This specification leaves such rendering choices entirely to
       application-specific signalling as described in Section 4.
 
    This specification uses demuxing based on RTP payload types.  When
    creating offers and answers WebRTC applications MUST therefore
    allocate RTP payload types only once per bundle group.  In cases
-   where rtcp-mux is in use this would mean a total of 96 payload types
-   per bundle [RFC5761].  It has been pointed out that some legacy
+   where rtcp-mux is in use this would mean a maximum of 96 payload
+   types per bundle [RFC5761].  It has been pointed out that some legacy
    devices may have unpredictable behaviour with payload types that are
-   outside the 96-127 range reserved by [RFC3551] so some applications
-   or implementations may choose not to use values outside this range.
-   Whatever the reason, offerers that find they need more than the
-   available payload type numbers, will simply need to either use a
+   outside the 96-127 range reserved by [RFC3551] for dynamic use.  Some
+   applications or implementations may therefore choose not to use
+   values outside this range.  Whatever the reason, offerers that find
+   they need more than the available payload type numbers, will simply
 
 
 
@@ -506,9 +506,9 @@ Ivov                   Expires November 28, 2013                [Page 9]
 Internet-Draft    No Plan: SDP O/A with Multiple SSRCs          May 2013
 
 
-   second bundle group or not use BUNDLE at all (which in the case of a
-   single audio and a single video m= line amounts to roughly the same
-   thing).
+   need to either use a second bundle group or not use BUNDLE at all
+   (which in the case of a single audio and a single video m= line
+   amounts to roughly the same thing).
 
    While not desirable, the implications of such a decision would be
    relatively limited.  Use of trickle ICE [TRICKLE-ICE] is going to
@@ -551,8 +551,8 @@ Internet-Draft    No Plan: SDP O/A with Multiple SSRCs          May 2013
    One way of handling such flows would be to advertise them in the way
    suggested by [RFC5956] and to then control them through application
    specific signalling.  This options has the merit of already existing
-   but it also implies the pre-announcement and propagation of SSRCs.
-
+   but it also implies the pre-announcement and propagation of SSRCs and
+   everything that follows.
 
 
 
@@ -563,41 +563,44 @@ Internet-Draft    No Plan: SDP O/A with Multiple SSRCs          May 2013
 
 
    Another approach could be a combination of RTCP and RTP header
-   extensions [RFC5285] in a way similar to the use in the Rapid
-   Synchronisation of RTP Flows [RFC6051].  While such a mechanism is
-   not currently defined by the IETF, specifying it could be relatively
-   straightforward:
+   extensions [RFC5285] in a way similar to the one employed by the
+   Rapid Synchronisation of RTP Flows [RFC6051].  While such a mechanism
+   is not currently defined by the IETF, specifying it could be
+   relatively straightforward:
 
-   Every packet belonging to a repair flow could carry a header
-   extension that points to the source stream (or source layer in case
-   of layered mechanisms).  The following shows one possible way how
-   that this could be signaled:
+   Every packet belonging to a repair flow could carry an RTP header
+   extension [RFC5285] that points to the source stream (or source layer
+   in case of layered mechanisms).  The following shows one possible way
+   of signalling this:
 
 
    a=extmap:3 urn:ietf:params:rtp-hdrext:fec-source-ssrc
 
 
 
-   and how the actual header extension could look in an RTP packet:
+   In this case the actual RTP packet and header extension could look
+   like this:
 
-    0                   1                   2                   3
-    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |V=2|P|1|  CC   |M|     PT      |       sequence number         |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+R
-   |                           timestamp                           |T
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+P
-   |           synchronisation source (SSRC) identifier            |
-   +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
-   |       0xBE    |    0xDE       |           length=3            |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+E
-   |  ID-3 | L=3   |          SSRC of the source RTP flow   ...    |x
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+t
-   |      ...      |    0 (pad)    |    0 (pad)    |    0 (pad)    |n
-   +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
-   |                         payload data                          |
-   |                             ....                              |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+     0                   1                   2                   3
+     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |V=2|P|1|  CC   |M|     PT      |       sequence number         |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+R
+    |                           timestamp                           |T
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+P
+    |           synchronisation source (SSRC) identifier            |
+    +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+    |       0xBE    |    0xDE       |           length=3            |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+E
+    |  ID-3 | L=3   |          SSRC of the source RTP flow   ...    |x
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+t
+    |   ... SSRC    |    0 (pad)    |    0 (pad)    |    0 (pad)    |n
+    +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+    |                         payload data                          |
+    |                             ....                              |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
 
 
    In cases where FEC or simulcast relations are not immediately needed
@@ -606,10 +609,7 @@ Internet-Draft    No Plan: SDP O/A with Multiple SSRCs          May 2013
 
 7.  WebRTC API Requirements
 
-   One of the main characteristics of this specification is the use of
-   SDP for transport channel setup and media stack initialisation only.
-   In order for applications to be able to cover everything else it is
-   important that WebRTC APIs actually allow for it.  Given the initial
+
 
 
 
@@ -618,6 +618,10 @@ Ivov                   Expires November 28, 2013               [Page 11]
 Internet-Draft    No Plan: SDP O/A with Multiple SSRCs          May 2013
 
 
+   One of the main characteristics of this specification is the use of
+   SDP for transport channel setup and media stack initialisation only.
+   In order for applications to be able to cover everything else it is
+   important that WebRTC APIs actually allow for it.  Given the initial
    directions taken by early implementations and specification work,
    this is currently almost but not entirely possible.
 
@@ -662,10 +666,6 @@ Internet-Draft    No Plan: SDP O/A with Multiple SSRCs          May 2013
               framework (work in progress), May 2013, <reference.I-D
               .ietf-clue-framework>.
 
-   [COIN]     Ivov, E. and E. Marocco, "XEP-0298: Delivering Conference
-              Information to Jingle Participants (Coin)", XSF XEP 0298,
-              June 2011, <reference.I-D.ietf-coin-framework>.
-
 
 
 
@@ -673,6 +673,10 @@ Ivov                   Expires November 28, 2013               [Page 12]
 
 Internet-Draft    No Plan: SDP O/A with Multiple SSRCs          May 2013
 
+
+   [COIN]     Ivov, E. and E. Marocco, "XEP-0298: Delivering Conference
+              Information to Jingle Participants (Coin)", XSF XEP 0298,
+              June 2011, <reference.I-D.ietf-coin-framework>.
 
    [MAX-SSRC]
               Westerlund, M., Burman, B., and F. Jansson, "Multiple
@@ -718,10 +722,6 @@ Internet-Draft    No Plan: SDP O/A with Multiple SSRCs          May 2013
               the Session Description Protocol", RFC 5956, September
               2010.
 
-   [RFC6015]  Begen, A., "RTP Payload Format for 1-D Interleaved Parity
-              Forward Error Correction (FEC)", RFC 6015, October 2010.
-
-
 
 
 
@@ -729,6 +729,9 @@ Ivov                   Expires November 28, 2013               [Page 13]
 
 Internet-Draft    No Plan: SDP O/A with Multiple SSRCs          May 2013
 
+
+   [RFC6015]  Begen, A., "RTP Payload Format for 1-D Interleaved Parity
+              Forward Error Correction (FEC)", RFC 6015, October 2010.
 
    [RFC6051]  Perkins, C. and T. Schierl, "Rapid Synchronisation of RTP
               Flows", RFC 6051, November 2010.
@@ -760,9 +763,6 @@ Author's Address
 
    Phone: +33-672-811-555
    Email: emcho@jitsi.org
-
-
-
 
 
 
