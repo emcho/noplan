@@ -137,6 +137,12 @@
         into the land of signalling protocols
         <xref target="ROACH-GLARELESS-ADD"/>.
       </t>
+      <t>
+        Finally, both Plan A and Plan B, also create expectations that
+        fine grained control of FEC, layering and RTX flows will always
+        be implemented through Offer/Answer, which would not necessarily
+        the best way to handle this in congested situations.
+      </t>
     </section>
     <section title='Introduction' anchor="intro">
       <t>
@@ -150,6 +156,12 @@
             the  addition and removal of media sources (e.g. conference
             participants, multiple web cams or "slides" ) must be
             possible without the need of Offer/Answer exchanges;
+          </t>
+          <t>
+            the addition or removal of simulcast or layered streams must
+            be possible without the need for Offer/Answer exchanges
+            beyond the initial declaration of such capabilities for
+            either direction.
           </t>
           <t>
             call establishment must not require preliminary announcement

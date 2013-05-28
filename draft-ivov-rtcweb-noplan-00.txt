@@ -4,8 +4,8 @@
 
 Network Working Group                                            E. Ivov
 Internet-Draft                                                     Jitsi
-Intended status: Standards Track                            May 27, 2013
-Expires: November 28, 2013
+Intended status: Standards Track                            May 28, 2013
+Expires: November 29, 2013
 
 
   No Plan: Economical Use of the Offer/Answer Model in WebRTC Sessions
@@ -45,7 +45,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on November 28, 2013.
+   This Internet-Draft will expire on November 29, 2013.
 
 Copyright Notice
 
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-Ivov                   Expires November 28, 2013                [Page 1]
+Ivov                   Expires November 29, 2013                [Page 1]
 
 Internet-Draft    No Plan: SDP O/A with Multiple SSRCs          May 2013
 
@@ -75,7 +75,7 @@ Table of Contents
 
    1.  Background  . . . . . . . . . . . . . . . . . . . . . . . . .   2
    2.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   4
-   3.  Reliance on Offer/Answer  . . . . . . . . . . . . . . . . . .   4
+   3.  Reliance on Offer/Answer  . . . . . . . . . . . . . . . . . .   5
      3.1.  Interoperability with Legacy  . . . . . . . . . . . . . .   6
    4.  Additional Session Control and Signalling . . . . . . . . . .   8
    5.  Demultiplexing and Identifying Streams (Use of Bundle)  . . .   9
@@ -109,7 +109,7 @@ Table of Contents
 
 
 
-Ivov                   Expires November 28, 2013                [Page 2]
+Ivov                   Expires November 29, 2013                [Page 2]
 
 Internet-Draft    No Plan: SDP O/A with Multiple SSRCs          May 2013
 
@@ -157,15 +157,15 @@ Internet-Draft    No Plan: SDP O/A with Multiple SSRCs          May 2013
    venturing into the land of signalling protocols
    [ROACH-GLARELESS-ADD].
 
+   Finally, both Plan A and Plan B, also create expectations that fine
+   grained control of FEC, layering and RTX flows will always be
+   implemented through Offer/Answer, which would not necessarily the
+   best way to handle this in congested situations.
 
 
 
 
-
-
-
-
-Ivov                   Expires November 28, 2013                [Page 3]
+Ivov                   Expires November 29, 2013                [Page 3]
 
 Internet-Draft    No Plan: SDP O/A with Multiple SSRCs          May 2013
 
@@ -179,6 +179,10 @@ Internet-Draft    No Plan: SDP O/A with Multiple SSRCs          May 2013
    o  the addition and removal of media sources (e.g.  conference
       participants, multiple web cams or "slides" ) must be possible
       without the need of Offer/Answer exchanges;
+
+   o  the addition or removal of simulcast or layered streams must be
+      possible without the need for Offer/Answer exchanges beyond the
+      initial declaration of such capabilities for either direction.
 
    o  call establishment must not require preliminary announcement or
       even knowledge of all potentially participating media sources;
@@ -215,16 +219,14 @@ Internet-Draft    No Plan: SDP O/A with Multiple SSRCs          May 2013
    or Plan B, or an entirely different signalling protocol, depending on
    what best matches their use cases and topology.
 
-3.  Reliance on Offer/Answer
 
 
-
-
-
-Ivov                   Expires November 28, 2013                [Page 4]
+Ivov                   Expires November 29, 2013                [Page 4]
 
 Internet-Draft    No Plan: SDP O/A with Multiple SSRCs          May 2013
 
+
+3.  Reliance on Offer/Answer
 
    The model presented in this specification relies on use of SDP and
    Offer/Answer in quite the same way as many of the pre-WebRTC (and
@@ -272,16 +274,16 @@ Internet-Draft    No Plan: SDP O/A with Multiple SSRCs          May 2013
    a=imageattr:97 \
      send [x=[480:16:800],y=[320:16:640],par=[1.2-1.3],q=0.6] \
           [x=[176:8:208],y=[144:8:176],par=[1.2-1.3]] \
-     recv *
-   a=rtpmap:98 H264/90000
 
 
 
-Ivov                   Expires November 28, 2013                [Page 5]
+Ivov                   Expires November 29, 2013                [Page 5]
 
 Internet-Draft    No Plan: SDP O/A with Multiple SSRCs          May 2013
 
 
+     recv *
+   a=rtpmap:98 H264/90000
    a=imageattr:98 send [x=800,y=640,sar=1.1,q=0.6] [x=480,y=320] \
                   recv [x=330,y=250]
 
@@ -331,9 +333,7 @@ Internet-Draft    No Plan: SDP O/A with Multiple SSRCs          May 2013
 
 
 
-
-
-Ivov                   Expires November 28, 2013                [Page 6]
+Ivov                   Expires November 29, 2013                [Page 6]
 
 Internet-Draft    No Plan: SDP O/A with Multiple SSRCs          May 2013
 
@@ -389,7 +389,7 @@ Internet-Draft    No Plan: SDP O/A with Multiple SSRCs          May 2013
 
 
 
-Ivov                   Expires November 28, 2013                [Page 7]
+Ivov                   Expires November 29, 2013                [Page 7]
 
 Internet-Draft    No Plan: SDP O/A with Multiple SSRCs          May 2013
 
@@ -445,7 +445,7 @@ Internet-Draft    No Plan: SDP O/A with Multiple SSRCs          May 2013
 
 
 
-Ivov                   Expires November 28, 2013                [Page 8]
+Ivov                   Expires November 29, 2013                [Page 8]
 
 Internet-Draft    No Plan: SDP O/A with Multiple SSRCs          May 2013
 
@@ -501,7 +501,7 @@ Internet-Draft    No Plan: SDP O/A with Multiple SSRCs          May 2013
 
 
 
-Ivov                   Expires November 28, 2013                [Page 9]
+Ivov                   Expires November 29, 2013                [Page 9]
 
 Internet-Draft    No Plan: SDP O/A with Multiple SSRCs          May 2013
 
@@ -557,7 +557,7 @@ Internet-Draft    No Plan: SDP O/A with Multiple SSRCs          May 2013
 
 
 
-Ivov                   Expires November 28, 2013               [Page 10]
+Ivov                   Expires November 29, 2013               [Page 10]
 
 Internet-Draft    No Plan: SDP O/A with Multiple SSRCs          May 2013
 
@@ -613,7 +613,7 @@ Internet-Draft    No Plan: SDP O/A with Multiple SSRCs          May 2013
 
 
 
-Ivov                   Expires November 28, 2013               [Page 11]
+Ivov                   Expires November 29, 2013               [Page 11]
 
 Internet-Draft    No Plan: SDP O/A with Multiple SSRCs          May 2013
 
@@ -669,7 +669,7 @@ Internet-Draft    No Plan: SDP O/A with Multiple SSRCs          May 2013
 
 
 
-Ivov                   Expires November 28, 2013               [Page 12]
+Ivov                   Expires November 29, 2013               [Page 12]
 
 Internet-Draft    No Plan: SDP O/A with Multiple SSRCs          May 2013
 
@@ -725,7 +725,7 @@ Internet-Draft    No Plan: SDP O/A with Multiple SSRCs          May 2013
 
 
 
-Ivov                   Expires November 28, 2013               [Page 13]
+Ivov                   Expires November 29, 2013               [Page 13]
 
 Internet-Draft    No Plan: SDP O/A with Multiple SSRCs          May 2013
 
@@ -780,4 +780,4 @@ Author's Address
 
 
 
-Ivov                   Expires November 28, 2013               [Page 14]
+Ivov                   Expires November 29, 2013               [Page 14]
