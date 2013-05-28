@@ -81,7 +81,7 @@ Table of Contents
    5.  Demultiplexing and Identifying Streams (Use of Bundle)  . . .   9
    6.  Simulcasting, FEC, Layering and RTX (Open Issue)  . . . . . .  10
    7.  WebRTC API Requirements . . . . . . . . . . . . . . . . . . .  12
-   8.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  12
+   8.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  13
    9.  Informative References  . . . . . . . . . . . . . . . . . . .  13
    Appendix A.  Acknowledgements . . . . . . . . . . . . . . . . . .  14
    Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .  14
@@ -606,9 +606,9 @@ Internet-Draft    No Plan: SDP O/A with Multiple SSRCs          May 2013
 
 
 
-   In cases where FEC or simulcast relations are not immediately needed
-   by the recipient, the above information could also be delayed until
-   the reception of the first RTCP packet.
+   Although, FEC and layering are not explicitly mentioned a similar
+   extension is already defined in [SRCNAME].
+
 
 
 
@@ -617,6 +617,10 @@ Ivov                   Expires November 29, 2013               [Page 11]
 
 Internet-Draft    No Plan: SDP O/A with Multiple SSRCs          May 2013
 
+
+   In cases where FEC or simulcast relations are not immediately needed
+   by the recipient, the above information could also be delayed until
+   the reception of the first RTCP packet.
 
 7.  WebRTC API Requirements
 
@@ -657,10 +661,6 @@ Internet-Draft    No Plan: SDP O/A with Multiple SSRCs          May 2013
        MediaStream-s.  It should therefore be possible for applications
        to join such tracks within a single MediaStream.
 
-8.  IANA Considerations
-
-   None.
-
 
 
 
@@ -673,6 +673,10 @@ Ivov                   Expires November 29, 2013               [Page 12]
 
 Internet-Draft    No Plan: SDP O/A with Multiple SSRCs          May 2013
 
+
+8.  IANA Considerations
+
+   None.
 
 9.  Informative References
 
@@ -719,16 +723,15 @@ Internet-Draft    No Plan: SDP O/A with Multiple SSRCs          May 2013
               Initiation Protocol (SIP) Event Package for Conference
               State", RFC 4575, August 2006.
 
-   [RFC5285]  Singer, D. and H. Desineni, "A General Mechanism for RTP
-              Header Extensions", RFC 5285, July 2008.
-
-
 
 
 Ivov                   Expires November 29, 2013               [Page 13]
 
 Internet-Draft    No Plan: SDP O/A with Multiple SSRCs          May 2013
 
+
+   [RFC5285]  Singer, D. and H. Desineni, "A General Mechanism for RTP
+              Header Extensions", RFC 5285, July 2008.
 
    [RFC5761]  Perkins, C. and M. Westerlund, "Multiplexing RTP Data and
               Control Packets on a Single Port", RFC 5761, April 2010.
@@ -749,6 +752,12 @@ Internet-Draft    No Plan: SDP O/A with Multiple SSRCs          May 2013
               (work in progress), May 2013, <reference.I-D.roach-rtcweb-
               glareless-add>.
 
+   [SRCNAME]  Westerlund, M., Burman, B., and P. Sandgren, "RTCP SDES
+              Item SRCNAME to Label Individual Sources ", reference.I-D
+              .westerlund-avtext-rtcp-sdes-srcname (work in progress),
+              October 2012, <reference.I-D.westerlund-avtext-rtcp-sdes-
+              srcname>.
+
    [TRICKLE-ICE]
               Ivov, E., Rescorla, E.K., and J. Uberti, "Trickle ICE:
               Incremental Provisioning of Candidates for the Interactive
@@ -762,6 +771,20 @@ Appendix A.  Acknowledgements
    document and providing numerous comments and substantial input.
 
 Author's Address
+
+
+
+
+
+
+
+
+
+
+Ivov                   Expires November 29, 2013               [Page 14]
+
+Internet-Draft    No Plan: SDP O/A with Multiple SSRCs          May 2013
+
 
    Emil Ivov
    Jitsi
@@ -780,4 +803,37 @@ Author's Address
 
 
 
-Ivov                   Expires November 29, 2013               [Page 14]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Ivov                   Expires November 29, 2013               [Page 15]

@@ -627,6 +627,11 @@ a=extmap:3 urn:ietf:params:rtp-hdrext:fec-source-ssrc
         </figure>
       </t>
       <t>
+        Although, FEC and layering are not explicitly mentioned a
+        similar extension is already defined in
+        <xref target="SRCNAME"/>.
+      </t>
+      <t>
         In cases where FEC or simulcast relations are not immediately
         needed by the recipient, the above information could also be
         delayed until the reception of the first RTCP packet.
@@ -865,6 +870,29 @@ a=extmap:3 urn:ietf:params:rtp-hdrext:fec-source-ssrc
         </front>
         <seriesInfo name='Internet-Draft'
                     value='reference.I-D.ivov-mmusic-trickle-ice' />
+      </reference>
+
+      <!-- SRCNAME -->
+      <reference anchor="SRCNAME"
+             target="reference.I-D.westerlund-avtext-rtcp-sdes-srcname">
+        <front>
+          <title>RTCP SDES Item SRCNAME to Label Individual Sources
+          </title>
+          <author fullname="Magnus Westerlund" initials="M."
+                  surname="Westerlund">
+            <organization>Ericsson</organization>
+          </author>
+          <author fullname="Bo Burman" initials="B." surname="Burman">
+            <organization>Ericsson</organization>
+          </author>
+          <author fullname="Patrik Sandgren" initials="P."
+                  surname="Sandgren">
+            <organization>Ericsson</organization>
+          </author>
+          <date day="22" month="October" year="2012"/>
+        </front>
+        <seriesInfo name='Internet-Draft'
+            value='reference.I-D.westerlund-avtext-rtcp-sdes-srcname' />
       </reference>
     </references>
     <section title='Acknowledgements'>
