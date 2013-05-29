@@ -27,7 +27,7 @@
           <code>67000</code>
           <country>France</country>
         </postal>
-        <phone>+33-672-811-555</phone>
+        <phone>+33-177-624-330</phone>
         <email>emcho@jitsi.org</email>
       </address>
     </author>
@@ -627,9 +627,13 @@ a=extmap:3 urn:ietf:params:rtp-hdrext:fec-source-ssrc
         </figure>
       </t>
       <t>
-        Although, FEC and layering are not explicitly mentioned a
-        similar extension is already defined in
-        <xref target="SRCNAME"/>.
+        Note that the above is just a stub. It's an example that's meant
+        to show one possible solution with some mechanisms (e.g. 1-D
+        Interleaved Parity <xref target="RFC6015"). Other mechanisms
+        may and probably will require different extensions or signalling
+        (<xref target="SRCNAME"/> will likely be an option for some). In
+        some cases, where layering information is provided by the codec,
+        an extensions is not going to be necessary at all.
       </t>
       <t>
         In cases where FEC or simulcast relations are not immediately
@@ -897,9 +901,9 @@ a=extmap:3 urn:ietf:params:rtp-hdrext:fec-source-ssrc
     </references>
     <section title='Acknowledgements'>
       <t>
-        Many thanks to Enrico Marocco and Bernard Aboba for reviewing
-        this document and providing numerous comments and substantial
-        input.
+        Many thanks to Enrico Marocco, Bernard Aboba and Peter Thatcher
+        for reviewing this document and providing numerous comments and
+        substantial input.
       </t>
     </section>
   </back>
