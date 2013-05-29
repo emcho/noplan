@@ -629,7 +629,7 @@ a=extmap:3 urn:ietf:params:rtp-hdrext:fec-source-ssrc
       <t>
         Note that the above is just a stub. It's an example that's meant
         to show one possible solution with some mechanisms (e.g. 1-D
-        Interleaved Parity <xref target="RFC6015"). Other mechanisms
+        Interleaved Parity <xref target="RFC6015"/>). Other mechanisms
         may and probably will require different extensions or signalling
         (<xref target="SRCNAME"/> will likely be an option for some). In
         some cases, where layering information is provided by the codec,
