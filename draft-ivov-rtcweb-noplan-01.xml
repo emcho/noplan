@@ -848,8 +848,7 @@ signalling.ontrackadded = function(rtpParams) {
           </figure>
         </section>
       </section>
-      <section title="Suggested WebRTC API Using PeerConnection
-                      Modifications"
+      <section title="Suggested WebRTC API Using TrackSendParams"
                    anchor="js-api-2">
         <t>
           This document proposes that the following methods and
