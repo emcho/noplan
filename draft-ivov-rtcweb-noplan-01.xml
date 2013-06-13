@@ -75,6 +75,11 @@
         introduce in a particular session.
       </t>
       <t>
+        The model described here is similar to the one employed by the
+        data channel JavaScript APIs in WebRTC, where methods are
+        supported on PeerConnection without being reflected in SDP.
+      </t>
+      <t>
         This document does not question the use of SDP and the
         Offer/Answer model or the value they have in terms of
         interoperability with legacy or other non-WebRTC devices.
@@ -126,9 +131,8 @@
         far from reaching consensus).
       </t>
       <t>
-        Another problem, more specific to Plan B, is the reliance on
-        preliminary announcement of SSRC identifiers for stream
-        identification. Why this could be perceived as relatively
+        Reliance on preliminary announcement of SSRC identifiers is
+        another issue. While this could be perceived as relatively
         straightforward in one-to-one sessions or even conference calls
         within controlled environments, it can be a problem in the
         following cases:
@@ -148,7 +152,6 @@
             required by the application.
           </t>
         </list>
-
       </t>
       <t>
         By increasing the number of Offer/Answer exchanges Both Plan A
@@ -162,12 +165,6 @@
         modifications in the Offer/Answer model and/or further venturing
         into the land of signalling protocols
         <xref target="ROACH-GLARELESS-ADD"/>.
-      </t>
-      <t>
-        Finally, both Plan A and Plan B, also create expectations that
-        fine grained control of FEC, layering and RTX flows will always
-        be implemented through Offer/Answer, which would not necessarily
-        the best way to handle this in congested situations.
       </t>
     </section>
     <section title='Introduction' anchor="intro">
@@ -494,7 +491,8 @@ a=max-recv-ssrc:{*:4}                     // number of SSRCs
         description of the conference).
       </t>
     </section>
-    <section title="Demultiplexing and Identifying Streams (Use of Bundle)"
+    <section title="Demultiplexing and Identifying Streams
+                    (Use of Bundle)"
              anchor="bundle">
       <t>
         This document assumes use of BUNDLE in WebRTC endpoints. This
@@ -688,7 +686,7 @@ a=extmap:3 urn:ietf:params:rtp-hdrext:fec-source-ssrc
         <list style="numbers">
           <t>
             Expose the SSRCs of all local MediaStreamTrack-s that the
-            application may want to attach to a PeerConnection.
+            application attaches to a PeerConnection.
           </t>
           <t>
             Expose the SSRCs of all remote MediaStreamTrack-s that are
@@ -720,12 +718,269 @@ a=extmap:3 urn:ietf:params:rtp-hdrext:fec-source-ssrc
           </t>
         </list>
       </t>
-    </section>
-    <section title="Examples"
-               anchor="examples">
       <t>
-        This section
+        The following sections <xref target="js-api-1"/> and
+        <xref target="js-api-2"/> provide suggestions for addressing the
+        above requirements in two possible ways.
       </t>
+      <section title="Suggested WebRTC API Using a TrackSender"
+               anchor="js-api-1">
+        <t>
+          This section proposes that the following methods and
+          dictionaries be added to the WebRTC API:
+          <figure>
+            <artwork align="left" xml:space="preserve">
+<![CDATA[
+partial interface RTCPeerConnection {
+  // Adds a track to this PeerConnection. Media from this track will not
+  // be sent until MediaStramTrackSender.start() is called, allowing the
+  // send parameters to be changed before starting. Also, the
+  // application may want to signal the MediaStramTrackSender.params to
+  // the remote side and receive an acknowledgement that the remote side
+  // wants to receive the track before starting.
+  MediaStreamTrackSender createTrackSender(MediaStreamTrack track);
+
+  // Given TrackSendParams (which was probably signalled from the remote
+  // side), create a track to receive the media sent by the remote side.
+  MediaStreamTrack createTrackReceiver(TrackSendParams sendParams);
+}
+
+interface MediaStreamTrackSender {
+  // Params to use when sending the media.
+  // Can be changed before start() is called.
+  attribute TrackSendParams params;
+
+  // Start encoding and sending media until stop() is called.
+  void start();
+
+  // Once called, no more media is sent by this sender.
+  // A track sender can never be "un-stopped".
+  void stop();
+
+  // Possible future additions:
+  // void setVideoResolution(unsigned long? height,
+  //                         unsigned long? width,
+  //                         unsigned short? framerate);
+}
+
+dictionary TrackSendParams {
+  // The track will be sent with the following SSRCs, which can be
+  // grouped by
+  // various semenatics.
+  unsigned long[] ssrcs;
+  SsrcGroup[] ssrcGroups;
+
+  // Possible future expansion:
+  //   Optional ID that can be put into a header extension so that
+  //   potentially SSRCs don't need to be acked before sending.  How
+  //   this gets put into the RTP packets is still undefined.
+  // unsigned long? headerExtensionTrackId;
+  //   Optional ID indicating which transport the track should be sent
+  //   on.  If unspecified, the browser will pick a good default.
+  //   There is only one transport when using BUNDLE, and usually only
+  //   one for each media type even when not using BUNDLE, meaning this
+  //   is only necessary in few scenarios.  When it is used, it should
+  //   match the SDP's MID.
+  // DOMString? transportId;
+  //   List of codecs (by name, not payload type) to use for this track.
+  // DOMString[] codecs;
+  //   List of header extensions to use for this track.
+  // DOMString[] headerExtensions;
+}
+
+dictionary SsrcGroup {
+  // Indicates the meaning of the ssrc grouping.
+  // For example "SIM" would be used for simulcast, and "FEC" for FEC.
+  // A given SSRC can be in more than one SSRC grouping.
+  DOMString semantics;  // "SIM", "FEC", etc
+  unsigned long[] ssrcs;
+}
+]]>
+            </artwork>
+          </figure>
+        </t>
+        <section title="Example 1" anchor="js-api-1-example">
+        <t>
+          Here is an example of how the API additions would be used:
+        </t>
+      <figure>
+        <artwork align="left" xml:space="preserve">
+<![CDATA[
+var signalling = setupSignallingInAppSpecificWay();
+var peerConnection = setupPeerConnectionInAppSpecificWay(signalling);
+
+// On sender side:
+var track = getATrackSomehow();
+var send = peerConnection.createTrackSender(track);
+// Possibly change send.params in an app-specific way.
+signalling.addTrack(send.params, function(acked) {
+  if (acked) {
+    send.start();
+    // And later:
+    send.stop();
+  }
+});
+
+// On receiver side:
+signalling.ontrackadded = function(rtpParams) {
+  var track = peerConnection.createTrackReceiver(rtpParams);
+  // Hookup track to <audio> or <video>.
+  // And later:
+  track.stop()
+}
+
+// In this exchange, the TrackSendParams signalled from the sender to the
+// receiver may have looked something like this:
+{
+  ssrcs: [12345, 23456, 34567],
+  ssrcGroups: [{
+    semantics: "SIM",
+    ssrcs: [12345, 23456, 34567]
+  }]
+}
+// or this:
+{
+  ssrcs: [45678],
+  ssrcGroups: []
+}
+]]>
+            </artwork>
+          </figure>
+        </section>
+      </section>
+      <section title="Suggested WebRTC API Using PeerConnection
+                      Modifications"
+                   anchor="js-api-2">
+        <t>
+          This document proposes that the following methods and
+          dictionaries be added to the WebRTC API:
+        </t>
+        <figure>
+          <artwork align="left" xml:space="preserve">
+<![CDATA[
+partial interface RTCPeerConnection {
+  TrackSendParams createTrackSendParams(MediaStreamTrack track);
+  // Starts receiving media that arrives with these TrackSendParams
+  MediaStreamTrack addRecvTrack(TrackSendParams params);
+  // Stops receiving media that arrives with this track
+  void removeRecvTrack(MediaStreamTrack track);
+  // Starts sending media from this track with these TrackSendParams.
+  void addSendTrack(MediaStreamTrack track, TrackSendParams params);
+  // Stops sending media that arrives with this track
+  void removeSendTrack(MediaStreamTrack track);
+}
+
+dictionary TrackSendParams {
+  // The track will be sent with the following SSRCs, which can be
+  // grouped by various semenatics.
+  unsigned long[] ssrcs;
+  SsrcGroup[] ssrcGroups;
+
+  // Possible future expansion:
+  //   Optional ID that can be put into a header extension so that
+  //   potentially SSRCs don't need to be acked before sending.  How
+  //   this gets put into the RTP packets is still undefined.
+  // unsigned long? headerExtensionTrackId;
+  //   Optional ID indicating which transport the track should be sent
+  //   on.  If unspecified, the browser will pick a good default.
+  //   There is only one transport when using BUNDLE, and usually only
+  //   one for each media type even when not using BUNDLE, meaning this
+  //   is only necessary in few scenarios.  When it is used, it should
+  //   match the SDP's MID.
+  // DOMString? transportId;
+  //   List of codecs (by name, not payload type) to use for this track.
+  // DOMString[] codecs;
+  //   List of header extensions to use for this track.
+  // DOMString[] headerExtensions;
+  //   Set the video resolution to send with (doesn't do anything on the
+  //   receive side).
+  // VideoResolution? videoResolution
+}
+
+dictionary SsrcGroup {
+  // Indicates the meaning of the ssrc grouping.
+  // For example "SIM" would be used for simulcast, and "FEC" for FEC.
+  // A given SSRC can be in more than one SSRC grouping.
+  DOMString semantics;  // "SIM", "FEC", etc
+  unsigned long[] ssrcs;
+}
+]]>
+          </artwork>
+        </figure>
+        <section title="Example 2" anchor="js-api-2-example">
+          <t>
+            Following is an example of how these API additions would be
+            used:
+          </t>
+          <figure>
+            <artwork align="left" xml:space="preserve">
+<![CDATA[
+var signalling = setupSignallingInAppSpecificWay();
+var peerConnection = setupPeerConnectionInAppSpecificWay(signalling);
+
+// On sender side:
+var track = getATrackSomehow();
+var params = peerConnection.createTrackParams(track);
+// Possibly change sender.sendParams in an app-specific way.
+signalling.addTrack(params, function(acked) {
+  if (acked) {
+    peerConnection.addSendTrack(track, params);
+    // And later:
+    peerConnection.removeSendTrack(track);
+  }
+});
+
+// On receiver side:
+signalling.ontrackadded = function(params) {
+  var track = peerConnection.addRecvTrack(params);
+  // Hookup receiver.track to <audio> or <video>.
+  // And later:
+  peerConnection.removeRecvTrack(params);
+};
+
+// In this exchange, the TrackSendParams signalled from the sender to the
+// receiver may have looked something like this:
+{
+  ssrcs: [12345, 23456, 34567],
+  ssrcGroups: [{
+    semantics: "SIM",
+    ssrcs: [12345, 23456, 34567]
+  }]
+}
+// or this:
+{
+  ssrcs: [45678],
+  ssrcGroups: []
+}
+]]>
+            </artwork>
+          </figure>
+        </section>
+      </section>
+      <section title="Additional Comments" anchor="comments">
+        <t>
+          The tracks added with the new PeerConnection methods will not
+          be reflected in the SDP of future Offer/Answer exchanges. This
+          would work similarly to createDataChannel() where only the
+          initial transport setup is reflected in SDP. The opposite,
+          that is, reflecting all tracks in SDP would once again imply
+          choosing a syntax similar to those in Plan A and Plan B, which
+          has proven to be a contentious subject and which, according
+          to No Plan, should be left to application-specific signalling.
+        </t>
+        <t>
+          There will be (possibly many) cases where these new methods
+          will be used when streaming media to legacy devices with
+          support for multiple streams. In such cases JavaScript
+          applications would be free to implement any form of signalling
+          that they require in order to communicate with their peers.
+          As already mentioned in this document such signalling could
+          look like Plan A SDP, Plan B SDP, CLUE, XCON or something
+          entirely different. Browser would not and could not choose
+          signalling that would work with any legacy multi-stream
+          devices because such signalling does not exist.
+        </t>
+      </section>
     </section>
     <section title="IANA Considerations" anchor="iana">
       <t>
