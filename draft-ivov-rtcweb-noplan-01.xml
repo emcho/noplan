@@ -279,7 +279,7 @@ a=mid:video
 a=rtcp-mux
 
 
-a=rtpmap:97 VP8/90000        // PT mappings and resolutions capabilities
+a=rtpmap:97 VP8/90000     // PT mappings and resolutions capabilities
 a=imageattr:97 \
   send [x=[480:16:800],y=[320:16:640],par=[1.2-1.3],q=0.6] \
        [x=[176:8:208],y=[144:8:176],par=[1.2-1.3]] \
@@ -461,7 +461,9 @@ a=max-recv-ssrc:{*:4}                     // number of SSRCs
         cover this. This includes CLUE channels <xref target="CLUE"/>,
         the SIP Event Package For Conference State
         <xref target="RFC4575"/> and its XMPP variant
-        <xref target="COIN"/>. Additional mechanisms, undoubtedly many
+        <xref target="COIN"/> as well as the protocols defined within
+        the Centralised Conferencing IETF working group
+        <xref target="XCON"/> . Additional mechanisms, undoubtedly many
         based on JSON, are very likely to emerge in the future as WebRTC
         applications address varying use cases, scenarios and
         topologies.
@@ -719,135 +721,9 @@ a=extmap:3 urn:ietf:params:rtp-hdrext:fec-source-ssrc
         </list>
       </t>
       <t>
-        The following sections <xref target="js-api-1"/> and
-        <xref target="js-api-2"/> provide suggestions for addressing the
-        above requirements in two possible ways.
+        The following section <xref target="js-api-2"/> provides
+        suggestions for addressing the above requirements.
       </t>
-      <section title="Suggested WebRTC API Using a TrackSender"
-               anchor="js-api-1">
-        <t>
-          This section proposes that the following methods and
-          dictionaries be added to the WebRTC API:
-          <figure>
-            <artwork align="left" xml:space="preserve">
-<![CDATA[
-partial interface RTCPeerConnection {
-  // Adds a track to this PeerConnection. Media from this track will not
-  // be sent until MediaStramTrackSender.start() is called, allowing the
-  // send parameters to be changed before starting. Also, the
-  // application may want to signal the MediaStramTrackSender.params to
-  // the remote side and receive an acknowledgement that the remote side
-  // wants to receive the track before starting.
-  MediaStreamTrackSender createTrackSender(MediaStreamTrack track);
-
-  // Given TrackSendParams (which was probably signalled from the remote
-  // side), create a track to receive the media sent by the remote side.
-  MediaStreamTrack createTrackReceiver(TrackSendParams sendParams);
-}
-
-interface MediaStreamTrackSender {
-  // Params to use when sending the media.
-  // Can be changed before start() is called.
-  attribute TrackSendParams params;
-
-  // Start encoding and sending media until stop() is called.
-  void start();
-
-  // Once called, no more media is sent by this sender.
-  // A track sender can never be "un-stopped".
-  void stop();
-
-  // Possible future additions:
-  // void setVideoResolution(unsigned long? height,
-  //                         unsigned long? width,
-  //                         unsigned short? framerate);
-}
-
-dictionary TrackSendParams {
-  // The track will be sent with the following SSRCs, which can be
-  // grouped by
-  // various semenatics.
-  unsigned long[] ssrcs;
-  SsrcGroup[] ssrcGroups;
-
-  // Possible future expansion:
-  //   Optional ID that can be put into a header extension so that
-  //   potentially SSRCs don't need to be acked before sending.  How
-  //   this gets put into the RTP packets is still undefined.
-  // unsigned long? headerExtensionTrackId;
-  //   Optional ID indicating which transport the track should be sent
-  //   on.  If unspecified, the browser will pick a good default.
-  //   There is only one transport when using BUNDLE, and usually only
-  //   one for each media type even when not using BUNDLE, meaning this
-  //   is only necessary in few scenarios.  When it is used, it should
-  //   match the SDP's MID.
-  // DOMString? transportId;
-  //   List of codecs (by name, not payload type) to use for this track.
-  // DOMString[] codecs;
-  //   List of header extensions to use for this track.
-  // DOMString[] headerExtensions;
-}
-
-dictionary SsrcGroup {
-  // Indicates the meaning of the ssrc grouping.
-  // For example "SIM" would be used for simulcast, and "FEC" for FEC.
-  // A given SSRC can be in more than one SSRC grouping.
-  DOMString semantics;  // "SIM", "FEC", etc
-  unsigned long[] ssrcs;
-}
-]]>
-            </artwork>
-          </figure>
-        </t>
-        <section title="Example 1" anchor="js-api-1-example">
-        <t>
-          Here is an example of how the API additions would be used:
-        </t>
-      <figure>
-        <artwork align="left" xml:space="preserve">
-<![CDATA[
-var signalling = setupSignallingInAppSpecificWay();
-var peerConnection = setupPeerConnectionInAppSpecificWay(signalling);
-
-// On sender side:
-var track = getATrackSomehow();
-var send = peerConnection.createTrackSender(track);
-// Possibly change send.params in an app-specific way.
-signalling.addTrack(send.params, function(acked) {
-  if (acked) {
-    send.start();
-    // And later:
-    send.stop();
-  }
-});
-
-// On receiver side:
-signalling.ontrackadded = function(rtpParams) {
-  var track = peerConnection.createTrackReceiver(rtpParams);
-  // Hookup track to <audio> or <video>.
-  // And later:
-  track.stop()
-}
-
-// In this exchange, the TrackSendParams signalled from the sender to the
-// receiver may have looked something like this:
-{
-  ssrcs: [12345, 23456, 34567],
-  ssrcGroups: [{
-    semantics: "SIM",
-    ssrcs: [12345, 23456, 34567]
-  }]
-}
-// or this:
-{
-  ssrcs: [45678],
-  ssrcGroups: []
-}
-]]>
-            </artwork>
-          </figure>
-        </section>
-      </section>
       <section title="Suggested WebRTC API Using TrackSendParams"
                    anchor="js-api-2">
         <t>
@@ -880,26 +756,27 @@ dictionary TrackSendParams {
   //   potentially SSRCs don't need to be acked before sending.  How
   //   this gets put into the RTP packets is still undefined.
   // unsigned long? headerExtensionTrackId;
-  //   Optional ID indicating which transport the track should be sent
-  //   on.  If unspecified, the browser will pick a good default.
-  //   There is only one transport when using BUNDLE, and usually only
-  //   one for each media type even when not using BUNDLE, meaning this
-  //   is only necessary in few scenarios.  When it is used, it should
-  //   match the SDP's MID.
+  //   Optional ID indicating which transport the track should be
+  //   sent on. If unspecified, the browser will pick a good default.
+  //   There is only one transport when using BUNDLE, and usually
+  //   only one for each media type even when not using BUNDLE,
+  //   meaning this is only necessary in few scenarios.  When it is
+  //   used, it should match the SDP's MID.
   // DOMString? transportId;
-  //   List of codecs (by name, not payload type) to use for this track.
+  //   List of codecs (by name, not payload type) to use for this
+  //   track.
   // DOMString[] codecs;
   //   List of header extensions to use for this track.
   // DOMString[] headerExtensions;
-  //   Set the video resolution to send with (doesn't do anything on the
-  //   receive side).
+  //   Set the video resolution to send with (doesn't do anything on
+  //   the receive side).
   // VideoResolution? videoResolution
 }
 
 dictionary SsrcGroup {
   // Indicates the meaning of the ssrc grouping.
-  // For example "SIM" would be used for simulcast, and "FEC" for FEC.
-  // A given SSRC can be in more than one SSRC grouping.
+  // For example "SIM" would be used for simulcast, and "FEC" for
+  // FEC. A given SSRC can be in more than one SSRC grouping.
   DOMString semantics;  // "SIM", "FEC", etc
   unsigned long[] ssrcs;
 }
@@ -937,8 +814,8 @@ signalling.ontrackadded = function(params) {
   peerConnection.removeRecvTrack(params);
 };
 
-// In this exchange, the TrackSendParams signalled from the sender to the
-// receiver may have looked something like this:
+// In this exchange, the TrackSendParams signalled from the sender
+// to the receiver may have looked something like this:
 {
   ssrcs: [12345, 23456, 34567],
   ssrcGroups: [{
@@ -1184,12 +1061,20 @@ signalling.ontrackadded = function(params) {
         <seriesInfo name='Internet-Draft'
             value='reference.I-D.westerlund-avtext-rtcp-sdes-srcname' />
       </reference>
+
+      <!-- XCON -->
+      <reference anchor="XCON" target="http://tools.ietf.org/wg/xcon/">
+        <front>
+          <title>Centralized Conferencing (XCON) Status Pages</title>
+          <author/>
+          <date/>
+        </front>
+      </reference>
     </references>
     <section title='Acknowledgements'>
       <t>
-        Many thanks to Enrico Marocco, Bernard Aboba and Peter Thatcher
-        for reviewing this document and providing numerous comments and
-        substantial input.
+        Many thanks to Bernard Aboba and Mary Barnes, for reviewing this
+        document and providing numerous comments and substantial input.
       </t>
     </section>
   </back>

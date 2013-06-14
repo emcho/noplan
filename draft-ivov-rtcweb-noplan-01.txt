@@ -5,10 +5,10 @@
 Network Working Group                                            E. Ivov
 Internet-Draft                                                     Jitsi
 Intended status: Standards Track                              E. Marocco
-Expires: December 15, 2013                                Telecom Italia
+Expires: December 16, 2013                                Telecom Italia
                                                              P. Thatcher
                                                                   Google
-                                                           June 13, 2013
+                                                           June 14, 2013
 
 
   No Plan: Economical Use of the Offer/Answer Model in WebRTC Sessions
@@ -53,7 +53,7 @@ Status of This Memo
 
 
 
-Ivov, et al.            Expires December 15, 2013               [Page 1]
+Ivov, et al.            Expires December 16, 2013               [Page 1]
 
 Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
 
@@ -63,7 +63,7 @@ Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on December 15, 2013.
+   This Internet-Draft will expire on December 16, 2013.
 
 Copyright Notice
 
@@ -82,37 +82,22 @@ Copyright Notice
 
 Table of Contents
 
-   1.  Background  . . . . . . . . . . . . . . . . . . . . . . . . .   3
+   1.  Background  . . . . . . . . . . . . . . . . . . . . . . . . .   2
    2.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   4
    3.  Reliance on Offer/Answer  . . . . . . . . . . . . . . . . . .   5
-     3.1.  Interoperability with Legacy  . . . . . . . . . . . . . .   7
+     3.1.  Interoperability with Legacy  . . . . . . . . . . . . . .   6
    4.  Additional Session Control and Signalling . . . . . . . . . .   8
    5.  Demultiplexing and Identifying Streams
        (Use of Bundle) . . . . . . . . . . . . . . . . . . . . . . .   9
    6.  Simulcasting, FEC, Layering and RTX (Open Issue)  . . . . . .  10
    7.  WebRTC API Requirements . . . . . . . . . . . . . . . . . . .  12
-     7.1.  Suggested WebRTC API Using a TrackSender  . . . . . . . .  13
-       7.1.1.  Example 1 . . . . . . . . . . . . . . . . . . . . . .  15
-     7.2.  Suggested WebRTC API Using TrackSendParams  . . . . . . .  15
-       7.2.1.  Example 2 . . . . . . . . . . . . . . . . . . . . . .  17
-     7.3.  Additional Comments . . . . . . . . . . . . . . . . . . .  18
-   8.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  19
-   9.  Informative References  . . . . . . . . . . . . . . . . . . .  19
-   Appendix A.  Acknowledgements . . . . . . . . . . . . . . . . . .  21
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  21
-
-
-
-
-
-
-
-
-
-Ivov, et al.            Expires December 15, 2013               [Page 2]
-
-Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
-
+     7.1.  Suggested WebRTC API Using TrackSendParams  . . . . . . .  13
+       7.1.1.  Example 2 . . . . . . . . . . . . . . . . . . . . . .  14
+     7.2.  Additional Comments . . . . . . . . . . . . . . . . . . .  15
+   8.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  15
+   9.  Informative References  . . . . . . . . . . . . . . . . . . .  15
+   Appendix A.  Acknowledgements . . . . . . . . . . . . . . . . . .  17
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  17
 
 1.  Background
 
@@ -121,6 +106,14 @@ Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
    establishing and negotiating sessions.  This choice was also
    accompanied by the decision not to mandate a specific signalling
    protocol so that, once interoperability has been achieved, web
+
+
+
+Ivov, et al.            Expires December 16, 2013               [Page 2]
+
+Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
+
+
    applications can choose the semantics that best fit their
    requirements.  In some scenarios however, such as those involving the
    use of multiple media sources, these choices have left open the issue
@@ -157,19 +150,6 @@ Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
 
    o  interoperability with legacy/non-WebRTC endpoints
 
-
-
-
-
-
-
-
-
-Ivov, et al.            Expires December 15, 2013               [Page 3]
-
-Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
-
-
    o  use within non-controlled and potentially federated conference
       environments where new RTP streams may appear relatively often.
       In such cases the signalling required to describe all of them
@@ -182,6 +162,14 @@ Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
    cases where both parties attempt to modify a session at the same
    time).  While glare is also possible with basic Offer/Answer and
    resolution of such situations must be implemented anyway, the need to
+
+
+
+Ivov, et al.            Expires December 16, 2013               [Page 3]
+
+Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
+
+
    frequently resort to such code may either negatively impact user
    experience (e.g. when "back off" resolution is used) or require
    substantial modifications in the Offer/Answer model and/or further
@@ -218,14 +206,6 @@ Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
       for different SSRCs as they can hardly be viewed as "widely
       deployed legacy").
 
-
-
-
-Ivov, et al.            Expires December 15, 2013               [Page 4]
-
-Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
-
-
    To achieve the above requirements this specification expects that
    browsers and WebRTC endpoints in general will only use SDP Offer/
    Answer to establish transport channels and initialize an RTP stack
@@ -236,6 +216,15 @@ Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
 
    All other session control and signalling are to be left to
    applications.
+
+
+
+
+
+Ivov, et al.            Expires December 16, 2013               [Page 4]
+
+Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
+
 
    The actual Offer/Answer semantics presented here do not differ
    fundamentally from those proposed by Plan A and Plan B. The main
@@ -275,13 +264,6 @@ Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
    a=mid:audio
    a=rtcp-mux
 
-
-
-Ivov, et al.            Expires December 15, 2013               [Page 5]
-
-Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
-
-
    a=rtpmap:96 opus/48000/2                  // PT mappings
    a=rtpmap:0 PCMU/8000
    a=rtpmap:8 PCMA/8000
@@ -292,11 +274,19 @@ Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
    [ICE Candidates]
 
    m=video 5002 RTP/SAVPF 97 98
+
+
+
+Ivov, et al.            Expires December 16, 2013               [Page 5]
+
+Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
+
+
    a=mid:video
    a=rtcp-mux
 
 
-   a=rtpmap:97 VP8/90000        // PT mappings and resolutions capabilities
+   a=rtpmap:97 VP8/90000     // PT mappings and resolutions capabilities
    a=imageattr:97 \
      send [x=[480:16:800],y=[320:16:640],par=[1.2-1.3],q=0.6] \
           [x=[176:8:208],y=[144:8:176],par=[1.2-1.3]] \
@@ -329,15 +319,6 @@ Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
       establishment and, in most cases, for the entire duraftion of a
       session.
 
-
-
-
-
-Ivov, et al.            Expires December 15, 2013               [Page 6]
-
-Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
-
-
    o  Leaves complete freedom to applications as to the way that they
       are going to signal any other information such as SSRC
       identification information or the addition or removal of RTP
@@ -349,6 +330,13 @@ Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
    the main reasons for the RTCWEB working group to choose the SDP Offer
    /Answer model as basis for media negotiation.  It is hence important
    to clarify the compatibility claims that this specification makes.
+
+
+
+Ivov, et al.            Expires December 16, 2013               [Page 6]
+
+Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
+
 
    A "widely deployed legacy endpoint" is considered to have the
    following characteristics:
@@ -386,14 +374,6 @@ Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
    render interoperability for some applications or topologies difficult
    or even impossible.
 
-
-
-
-Ivov, et al.            Expires December 15, 2013               [Page 7]
-
-Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
-
-
    This is exactly what the use of Offer/Answer discussed here strives
    to achieve.  Audio/Video offers originating from WebRTC endpoints
    will always have a maximum of one audio and one video m= line.  It
@@ -406,6 +386,14 @@ Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
    support for a maximum number of incoming or outgoing streams for
    reasons such as processing constraints.  Use of the "max-send-ssrc"
    and "max-recv-ssrc" attributes [MAX-SSRC] could be one way of doing
+
+
+
+Ivov, et al.            Expires December 16, 2013               [Page 7]
+
+Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
+
+
    this, although that mechanism would need to be extended to provide
    ways of distinguishing between independent flows and complementary
    ones such as layered FEC and RTX.  Even with this in mind it is still
@@ -441,15 +429,6 @@ Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
 
    o  Accepting and refusing some of them.
 
-
-
-
-
-Ivov, et al.            Expires December 15, 2013               [Page 8]
-
-Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
-
-
    o  Identifying SSRCs and obtaining additional metadata for them (e.g.
       the user corresponding to a specific SSRC).
 
@@ -457,10 +436,19 @@ Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
    to applications.  There are numerous existing or emerging solutions,
    some of them developed by the IETF, that already cover this.  This
    includes CLUE channels [CLUE], the SIP Event Package For Conference
-   State [RFC4575] and its XMPP variant [COIN].  Additional mechanisms,
-   undoubtedly many based on JSON, are very likely to emerge in the
-   future as WebRTC applications address varying use cases, scenarios
-   and topologies.
+   State [RFC4575] and its XMPP variant [COIN] as well as the protocols
+   defined within the Centralised Conferencing IETF working group [XCON]
+   . Additional mechanisms, undoubtedly many based on JSON, are very
+   likely to emerge in the future as WebRTC applications address varying
+   use cases, scenarios and topologies.
+
+
+
+
+Ivov, et al.            Expires December 16, 2013               [Page 8]
+
+Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
+
 
    The most important part of this specification is hence to prevent
    certain assumptions or topologies from being imposed on applications.
@@ -498,14 +486,6 @@ Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
       feed incoming packets to.  Such decisions depend solely on the
       format that is used to encode the content of incoming packets.
 
-
-
-
-Ivov, et al.            Expires December 15, 2013               [Page 9]
-
-Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
-
-
       The above is not to be confused with the process of making
       rendering decision about a processed flow.  Such decisions include
       showing a "current speaker" flow at a specific location, window or
@@ -518,6 +498,14 @@ Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
    This specification uses demuxing based on RTP payload types.  When
    creating offers and answers WebRTC applications MUST therefore
    allocate RTP payload types only once per bundle group.  In cases
+
+
+
+Ivov, et al.            Expires December 16, 2013               [Page 9]
+
+Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
+
+
    where rtcp-mux is in use this would mean a maximum of 96 payload
    types per bundle [RFC5761].  It has been pointed out that some legacy
    devices may have unpredictable behaviour with payload types that are
@@ -552,16 +540,6 @@ Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
 
 6.  Simulcasting, FEC, Layering and RTX (Open Issue)
 
-
-
-
-
-
-Ivov, et al.            Expires December 15, 2013              [Page 10]
-
-Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
-
-
    From a WebRTC perspective, repair flows such as layering, FEC, RTX
    and to some extent simulcasting, present an interesting challenge,
    which is why they are considered an open issue by this specification.
@@ -576,6 +554,14 @@ Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
    disable some or all repair flows because it has been made aware by
    application-specific signalling that they are temporarily not being
    used/rendered by the remote end (e.g. because it is only displaying a
+
+
+
+Ivov, et al.            Expires December 16, 2013              [Page 10]
+
+Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
+
+
    thumbnail or because a corresponding video tag is not currently
    visible).
 
@@ -610,14 +596,6 @@ Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
 
      0                   1                   2                   3
      0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-
-
-
-Ivov, et al.            Expires December 15, 2013              [Page 11]
-
-Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
-
-
     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     |V=2|P|1|  CC   |M|     PT      |       sequence number         |
     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+R
@@ -632,6 +610,14 @@ Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
     |   ... SSRC    |    0 (pad)    |    0 (pad)    |    0 (pad)    |n
     +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
     |                         payload data                          |
+
+
+
+Ivov, et al.            Expires December 16, 2013              [Page 11]
+
+Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
+
+
     |                             ....                              |
     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
@@ -666,14 +652,6 @@ Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
    1.  Expose the SSRCs of all local MediaStreamTrack-s that the
        application attaches to a PeerConnection.
 
-
-
-
-Ivov, et al.            Expires December 15, 2013              [Page 12]
-
-Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
-
-
    2.  Expose the SSRCs of all remote MediaStreamTrack-s that are
        received on a PeerConnection
 
@@ -688,6 +666,14 @@ Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
        enable) any MediaStreamTrack.  This should also include the
        possibility to do so for specific repair flows.
 
+
+
+
+Ivov, et al.            Expires December 16, 2013              [Page 12]
+
+Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
+
+
    6.  Information about how certain MediaStreamTrack-s relate to each
        other (e.g. a given audio flow is related to a specific video
        flow) may be exchanged by applications after media has started
@@ -696,151 +682,10 @@ Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
        MediaStream-s. It should therefore be possible for applications
        to join such tracks within a single MediaStream.
 
-   The following sections Section 7.1 and Section 7.2 provide
-   suggestions for addressing the above requirements in two possible
-   ways.
+   The following section Section 7.1 provides suggestions for addressing
+   the above requirements.
 
-7.1.  Suggested WebRTC API Using a TrackSender
-
-   This section proposes that the following methods and dictionaries be
-   added to the WebRTC API:
-
-
-   partial interface RTCPeerConnection {
-     // Adds a track to this PeerConnection. Media from this track will not
-     // be sent until MediaStramTrackSender.start() is called, allowing the
-     // send parameters to be changed before starting. Also, the
-     // application may want to signal the MediaStramTrackSender.params to
-     // the remote side and receive an acknowledgement that the remote side
-     // wants to receive the track before starting.
-     MediaStreamTrackSender createTrackSender(MediaStreamTrack track);
-
-     // Given TrackSendParams (which was probably signalled from the remote
-     // side), create a track to receive the media sent by the remote side.
-     MediaStreamTrack createTrackReceiver(TrackSendParams sendParams);
-   }
-
-   interface MediaStreamTrackSender {
-     // Params to use when sending the media.
-
-
-
-Ivov, et al.            Expires December 15, 2013              [Page 13]
-
-Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
-
-
-     // Can be changed before start() is called.
-     attribute TrackSendParams params;
-
-     // Start encoding and sending media until stop() is called.
-     void start();
-
-     // Once called, no more media is sent by this sender.
-     // A track sender can never be "un-stopped".
-     void stop();
-
-     // Possible future additions:
-     // void setVideoResolution(unsigned long? height,
-     //                         unsigned long? width,
-     //                         unsigned short? framerate);
-   }
-
-   dictionary TrackSendParams {
-     // The track will be sent with the following SSRCs, which can be
-     // grouped by
-     // various semenatics.
-     unsigned long[] ssrcs;
-     SsrcGroup[] ssrcGroups;
-
-     // Possible future expansion:
-     //   Optional ID that can be put into a header extension so that
-     //   potentially SSRCs don't need to be acked before sending.  How
-     //   this gets put into the RTP packets is still undefined.
-     // unsigned long? headerExtensionTrackId;
-     //   Optional ID indicating which transport the track should be sent
-     //   on.  If unspecified, the browser will pick a good default.
-     //   There is only one transport when using BUNDLE, and usually only
-     //   one for each media type even when not using BUNDLE, meaning this
-     //   is only necessary in few scenarios.  When it is used, it should
-     //   match the SDP's MID.
-     // DOMString? transportId;
-     //   List of codecs (by name, not payload type) to use for this track.
-     // DOMString[] codecs;
-     //   List of header extensions to use for this track.
-     // DOMString[] headerExtensions;
-   }
-
-   dictionary SsrcGroup {
-     // Indicates the meaning of the ssrc grouping.
-     // For example "SIM" would be used for simulcast, and "FEC" for FEC.
-     // A given SSRC can be in more than one SSRC grouping.
-     DOMString semantics;  // "SIM", "FEC", etc
-     unsigned long[] ssrcs;
-   }
-
-
-
-Ivov, et al.            Expires December 15, 2013              [Page 14]
-
-Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
-
-
-7.1.1.  Example 1
-
-   Here is an example of how the API additions would be used:
-
-
-   var signalling = setupSignallingInAppSpecificWay();
-   var peerConnection = setupPeerConnectionInAppSpecificWay(signalling);
-
-   // On sender side:
-   var track = getATrackSomehow();
-   var send = peerConnection.createTrackSender(track);
-   // Possibly change send.params in an app-specific way.
-   signalling.addTrack(send.params, function(acked) {
-     if (acked) {
-       send.start();
-       // And later:
-       send.stop();
-     }
-   });
-
-   // On receiver side:
-   signalling.ontrackadded = function(rtpParams) {
-     var track = peerConnection.createTrackReceiver(rtpParams);
-     // Hookup track to <audio> or <video>.
-     // And later:
-     track.stop()
-   }
-
-   // In this exchange, the TrackSendParams signalled from the sender to the
-   // receiver may have looked something like this:
-   {
-     ssrcs: [12345, 23456, 34567],
-     ssrcGroups: [{
-       semantics: "SIM",
-       ssrcs: [12345, 23456, 34567]
-     }]
-   }
-   // or this:
-   {
-     ssrcs: [45678],
-     ssrcGroups: []
-   }
-
-
-
-7.2.  Suggested WebRTC API Using TrackSendParams
-
-
-
-
-
-Ivov, et al.            Expires December 15, 2013              [Page 15]
-
-Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
-
+7.1.  Suggested WebRTC API Using TrackSendParams
 
    This document proposes that the following methods and dictionaries be
    added to the WebRTC API:
@@ -869,89 +714,44 @@ Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
      //   potentially SSRCs don't need to be acked before sending.  How
      //   this gets put into the RTP packets is still undefined.
      // unsigned long? headerExtensionTrackId;
-     //   Optional ID indicating which transport the track should be sent
-     //   on.  If unspecified, the browser will pick a good default.
-     //   There is only one transport when using BUNDLE, and usually only
-     //   one for each media type even when not using BUNDLE, meaning this
-     //   is only necessary in few scenarios.  When it is used, it should
-     //   match the SDP's MID.
+     //   Optional ID indicating which transport the track should be
+     //   sent on. If unspecified, the browser will pick a good default.
+     //   There is only one transport when using BUNDLE, and usually
+     //   only one for each media type even when not using BUNDLE,
+     //   meaning this is only necessary in few scenarios.  When it is
+     //   used, it should match the SDP's MID.
      // DOMString? transportId;
-     //   List of codecs (by name, not payload type) to use for this track.
+     //   List of codecs (by name, not payload type) to use for this
+
+
+
+Ivov, et al.            Expires December 16, 2013              [Page 13]
+
+Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
+
+
+     //   track.
      // DOMString[] codecs;
      //   List of header extensions to use for this track.
      // DOMString[] headerExtensions;
-     //   Set the video resolution to send with (doesn't do anything on the
-     //   receive side).
+     //   Set the video resolution to send with (doesn't do anything on
+     //   the receive side).
      // VideoResolution? videoResolution
    }
 
    dictionary SsrcGroup {
      // Indicates the meaning of the ssrc grouping.
-     // For example "SIM" would be used for simulcast, and "FEC" for FEC.
-     // A given SSRC can be in more than one SSRC grouping.
+     // For example "SIM" would be used for simulcast, and "FEC" for
+     // FEC. A given SSRC can be in more than one SSRC grouping.
      DOMString semantics;  // "SIM", "FEC", etc
-
-
-
-Ivov, et al.            Expires December 15, 2013              [Page 16]
-
-Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
-
-
      unsigned long[] ssrcs;
    }
 
 
 
-7.2.1.  Example 2
+7.1.1.  Example 2
 
    Following is an example of how these API additions would be used:
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Ivov, et al.            Expires December 15, 2013              [Page 17]
-
-Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
 
 
    var signalling = setupSignallingInAppSpecificWay();
@@ -977,8 +777,16 @@ Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
      peerConnection.removeRecvTrack(params);
    };
 
-   // In this exchange, the TrackSendParams signalled from the sender to the
-   // receiver may have looked something like this:
+   // In this exchange, the TrackSendParams signalled from the sender
+
+
+
+Ivov, et al.            Expires December 16, 2013              [Page 14]
+
+Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
+
+
+   // to the receiver may have looked something like this:
    {
      ssrcs: [12345, 23456, 34567],
      ssrcGroups: [{
@@ -994,7 +802,7 @@ Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
 
 
 
-7.3.  Additional Comments
+7.2.  Additional Comments
 
    The tracks added with the new PeerConnection methods will not be
    reflected in the SDP of future Offer/Answer exchanges.  This would
@@ -1002,14 +810,6 @@ Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
    transport setup is reflected in SDP.  The opposite, that is,
    reflecting all tracks in SDP would once again imply choosing a syntax
    similar to those in Plan A and Plan B, which has proven to be a
-
-
-
-Ivov, et al.            Expires December 15, 2013              [Page 18]
-
-Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
-
-
    contentious subject and which, according to No Plan, should be left
    to application-specific signalling.
 
@@ -1033,6 +833,14 @@ Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
               for Telepresence Multi-Streams", reference.I-D.ietf-clue-
               framework (work in progress), May 2013, <reference.I-D
               .ietf-clue-framework>.
+
+
+
+
+Ivov, et al.            Expires December 16, 2013              [Page 15]
+
+Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
+
 
    [COIN]     Ivov, E. and E. Marocco, "XEP-0298: Delivering Conference
               Information to Jingle Participants (Coin)", XSF XEP 0298,
@@ -1059,13 +867,6 @@ Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
               plan (work in progress), May 2013, <reference.I-D.uberti-
               rtcweb-plan>.
 
-
-
-Ivov, et al.            Expires December 15, 2013              [Page 19]
-
-Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
-
-
    [RFC3264]  Rosenberg, J. and H. Schulzrinne, "An Offer/Answer Model
               with Session Description Protocol (SDP)", RFC 3264, June
               2002.
@@ -1087,6 +888,15 @@ Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
    [RFC5956]  Begen, A., "Forward Error Correction Grouping Semantics in
               the Session Description Protocol", RFC 5956, September
               2010.
+
+
+
+
+
+Ivov, et al.            Expires December 16, 2013              [Page 16]
+
+Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
+
 
    [RFC6015]  Begen, A., "RTP Payload Format for 1-D Interleaved Parity
               Forward Error Correction (FEC)", RFC 6015, October 2010.
@@ -1113,20 +923,13 @@ Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
               .ivov-mmusic-trickle-ice (work in progress), March 2013,
               <reference.I-D.ivov-mmusic-trickle-ice>.
 
-
-
-
-
-Ivov, et al.            Expires December 15, 2013              [Page 20]
-
-Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
-
+   [XCON]     , "Centralized Conferencing (XCON) Status Pages", ,
+              <http://tools.ietf.org/wg/xcon/>.
 
 Appendix A.  Acknowledgements
 
-   Many thanks to Enrico Marocco, Bernard Aboba and Peter Thatcher for
-   reviewing this document and providing numerous comments and
-   substantial input.
+   Many thanks to Bernard Aboba and Mary Barnes, for reviewing this
+   document and providing numerous comments and substantial input.
 
 Authors' Addresses
 
@@ -1137,6 +940,18 @@ Authors' Addresses
 
    Phone: +33-177-624-330
    Email: emcho@jitsi.org
+
+
+
+
+
+
+
+
+
+Ivov, et al.            Expires December 16, 2013              [Page 17]
+
+Internet-Draft    No Plan: SDP O/A with Multiple SSRCs         June 2013
 
 
    Enrico Marocco
@@ -1173,4 +988,21 @@ Authors' Addresses
 
 
 
-Ivov, et al.            Expires December 15, 2013              [Page 21]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Ivov, et al.            Expires December 16, 2013              [Page 18]
