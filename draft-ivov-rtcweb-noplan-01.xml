@@ -615,47 +615,9 @@ a=max-recv-ssrc:{*:4}                     // number of SSRCs
         Every packet belonging to a repair flow could carry an RTP
         header extension <xref target="RFC5285"/> that points to the
         source stream (or source layer in case of layered mechanisms).
-        The following shows one possible way of signalling this:
       </t>
       <t>
-      <figure>
-          <artwork align="left" xml:space="preserve">
-<![CDATA[
-a=extmap:3 urn:ietf:params:rtp-hdrext:fec-source-ssrc
-]]>
-          </artwork>
-        </figure>
-        In this case the actual RTP packet and header extension could
-        look like this:
-        <figure>
-          <artwork align="left" xml:space="preserve">
-<![CDATA[
-  0                   1                   2                   3
-  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
- +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- |V=2|P|1|  CC   |M|     PT      |       sequence number         |
- +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+R
- |                           timestamp                           |T
- +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+P
- |           synchronisation source (SSRC) identifier            |
- +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
- |       0xBE    |    0xDE       |           length=3            |
- +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+E
- |  ID-3 | L=3   |          SSRC of the source RTP flow   ...    |x
- +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+t
- |   ... SSRC    |    0 (pad)    |    0 (pad)    |    0 (pad)    |n
- +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
- |                         payload data                          |
- |                             ....                              |
- +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- ]]>
-          </artwork>
-        </figure>
-      </t>
-      <t>
-        Note that the above is just a stub. It's an example that's meant
-        to show one possible solution with some mechanisms (e.g. 1-D
-        Interleaved Parity <xref target="RFC6015"/>). Other mechanisms
+        Again, these are just some possibilities. Different mechanisms
         may and probably will require different extensions or signalling
         (<xref target="SRCNAME"/> will likely be an option for some). In
         some cases, where layering information is provided by the codec,
@@ -663,7 +625,7 @@ a=extmap:3 urn:ietf:params:rtp-hdrext:fec-source-ssrc
       </t>
       <t>
         In cases where FEC or simulcast relations are not immediately
-        needed by the recipient, the above information could also be
+        needed by the recipient, this information could also be
         delayed until the reception of the first RTCP packet.
       </t>
     </section>
