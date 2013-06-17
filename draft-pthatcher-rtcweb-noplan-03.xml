@@ -152,72 +152,6 @@
       This document proposes that the following methods and dictionaries by added to the WebRTC API:
       <figure>
         <artwork align="left" xml:space="preserve">
-<![CDATA[
-partial interface RTCPeerConnection {
-  // Add a track to the PeerConnection to send media from this track
-  // over this peer connection.  Media will not be sent until
-  // MediaStramTrackSender.start(), allowing the send parameters to be
-  // changed before starting.  Also, the application probably wants to
-  // signal the MediaStramTrackSender.params to the remote side and
-  // receive and acknowledgement that the remote side wants to receive
-  // the track before starting.
-  MediaStreamTrackSender createTrackSender(MediaStreamTrack track);
-
-  // Given TrackSendParams (which was probably signalled from the remote 
-  // side), create a track to receive the media sent by the remote side.
-  MediaStreamTrack createTrackReceiver(TrackSendParams sendParams);
-}
-
-interface MediaStreamTrackSender {
-  // Params to use when sending the media.  
-  // Can be changed before start() is called.
-  attribute TrackSendParams params;
-
-  // Start encoding and sending media until stop() is called.
-  void start();
-
-  // Once called, no more media is sent by this sender.  
-  // A track sender can never be "un-stopped".
-  void stop();
-
-  // Possible future additions:
-  // void setVideoResolution(unsigned long? height,
-  //                         unsigned long? width, 
-  //                         unsigned short? framerate);
-}
-
-dictionary TrackSendParams {
- // The track will be sent with the following SSRCs, which can be grouped by  
- // various semenatics.
- unsigned long[] ssrcs;
- SsrcGroup[] ssrcGroups;
-
- // Possible future expansion:
- //   Optional ID that can be put into a header extension so that
- //   potentially SSRCs don't need to be acked before sending.  How
- //   this gets put into the RTP packets is still undefined.
- // unsigned long? headerExtensionTrackId;  
- //   Optional ID indicating which transport the track should be sent
- //   on.  If unspecified, the browser will pick a good default.
- //   There is only one transport when using BUNDLE, and usually only
- //   one for each media type even when not using BUNDLE, meaning this
- //   is only necessary in few scenarios.  When it is used, it should
- //   match the SDP's MID.
- // DOMString? transportId;
- //   List of codecs (by name, not payload type) to use for this track.
- // DOMString[] codecs;
- //   List of header extensions to use for this track.
- // DOMString[] headerExtensions;
-}
-
-dictionary SsrcGroup {
-  // Indicates the meaning of the ssrc grouping.  
-  // For example "SIM" would be used for simulcast, and "FEC" for FEC.
-  // A given SSRC can be in more than one SSRC grouping.
-  DOMString semantics;  // "SIM", "FEC", etc
-  unsigned long[] ssrcs;
-}
-]]>
         </artwork>
       </figure>            
     </section>
@@ -227,72 +161,240 @@ dictionary SsrcGroup {
       <figure>
         <artwork align="left" xml:space="preserve">
 <![CDATA[
-var signalling = setupSignallingInAppSpecificWay();
-var peerConnection = setupPeerConnectionInAppSpecificWay(signalling);
+Intro: This follows the model of createDataChannel, which has a JS method on PeerConnection that makes it possible to add data channels without going through SDP.  Furthermore, just like createDataChannel allows 2 ways to handle neogitation (the "I know what I'm doing;  Here's what I want to send; Let me signal everything" mode and the "please take care of it for me;  send an OPEN message" mode), this also has 2 ways to handle negotiation (the "I know what I'm doing; Here's what I want to send; Let me signal everything" mode and the "please take care of it for me;  send SDP back and forth" mode). 
+ 
+Following the success of createDataChannel, this allows simple applications to Just Work and more advanced applications to easily control what they need to.  In particular, it's possible to use this API to implement either Plan A or Plan B.
+
+// The following two method are added to RTCPeerConnection
+partial interface RTCPeerConnection {
+ // Create a stream that is used to send a source stream.
+ // The MediaSendStream.description can be used for signalling.
+ // No media is sent until addStream(MediaSendStream) is called.
+ LocalMediaStream createLocalStream(MediaStream sourceStream);
+
+ // Create a stream that is used to receive media from the remote side,
+ // given the parameters signalled from MedaiSendStream.description.
+ MediaStream createRemoteStream(MediaStreamDescription description);
+}
+
+
+interface LocalMediaStream implements MediaStream {
+  // This can be changed at any time, but especially before calling
+  // PeerConnection.addStream
+  attribute MediaStreamDescription description;
+}
+
+
+// Represents the parameters used to either send or receive a stream 
+// over a PeerConnection.
+dictionary MediaStreamDescription {
+  MediaStreamTrackDescription[] tracks;
+}
+
+
+// Represents the parameters used to either send or receive a track over // a PeerConnection.  A track has many "flows", which can be grouped 
+// together.
+dictionary MediaStreamTrackDescription {
+  // Same as the MediaStreamTrack.id
+  DOMString id;
+
+  // Same as the MediaStreamTrack.kind
+  DOMString kind;  
+
+  // A track can have many "flows", such as for Simulcast, FEC, etc.
+  // And they can be grouped in arbitrary ways.
+  MediaFlowDescription[] flows;
+  MediaFlowGroup[] flowGroups;
+}
+
+// Represents the parameters used to either send or receive a "flow" 
+// over a PeerConnection.  A "flow" is a media that arrives with a 
+// single, unique SSRC.  One to many flows together make up the media 
+// for a track.  For example, there may be Simulcast, FEC, and RTX 
+// flows.
+dictionay MediaFlowDescription {
+  // The "flow id" must be unique to the track, but need not be unique 
+  // outside of the track (two tracks could both have a flow with the 
+  // same flow ID).
+  DOMString id;
+
+  // Each flow can go over its own transport.  If the JS sets this to a
+  // transportId that doesn't have a transport setup already, the 
+  // browser will use SDP negotiation to setup a transport to back that 
+  // transportId.  If This is set to an MID in the SDP, then that MID's 
+  // transport is used.
+  DOMString transportId;
+
+  // The SSRC used to send the flow.
+  unsigned int ssrc;
+
+  // When used as receive parameters, this indicates the possible list 
+  // of codecs that might come in for this flow.  For exmample, a given 
+  // receive flow could be setup to receive any of OPUS, ISAC, or PCMU.
+  // When used as send parameters, this indicates that the first codec 
+  // should be used, but the browser can use send other codecs if it 
+  // needs to because of either bandwidth or CPU constraints.
+  MediaCodecDescription[] codecs;
+}
+
+
+dictionary MediaFlowGroup {
+  DOMString type;  // "SIM" for Simulcast, "FEC" for FEC, etc
+  DOMString[] flowids;
+}
+
+dictionary MediaCodecDescription {
+  unsigned byte payloadType;
+  DOMString name;
+  unsigned int? clockRate;
+  unsigned int? bitRate;
+  // A grab bag of other fmtp that will need to be further defined.
+  MediaCodecParam[] params;  
+}
+
+dictionary MediaCodecParam {
+  DOMString key;
+  DOMString value;
+}
+
+
+Notes:
+
+- When LocalMediaStreams are added using addStream, onnegotiatedneeded is not called, and those streams are never reflected in future SDP exchanges.  Indeed, it would be impossible to put them in the SDP without first resolving if that would be Plan A SDP or Plan B SDP.
+
+- Just like piles of attributes would need to be defined for Plan A and for Plan B, similar attributes would need to be defined here (Luckily,  much work has already been done figuring out what those parameters are :).
+
+
+Pros:
+
+- Either Plan A or Plan B or could be implemented in Javascript using this API
+- It exposes all the same functionality to the Javascript as SDP, but in a much nicer format that is much easier to work with.
+- Any other signalling mechanism, such as Jingle or CLUE could be implemented using this API.
+- There is almost no risk of signalling glare.
+- Debugging errors with misconfigured descriptions should be much easier with this than with large SDP blobs.
+
+
+Cons:
+
+- Now there are two slightly different ways to add streams: by creating a LocalMediaStream first, and not.  This is, however, analogous to setting "negotiated: true" in createDataChannel.  On way is "Just Work", and the other is more advanced control.
+
+- All the options in MediaCodecDescription are a bit complicated.  Really, this is only necessary because Plan A requires being able to specify codec parameters per SSRC, and set each flow on different transports.  If we did not have this requirement, we could simplify.
+
+
+Example Usage:
+
+// Imagine I have MyApp, handles creating a PeerConnection,
+// signalling, and rendering streams.  This is how the new API could be 
+// used.
+var peerConnection = MyApp.createPeerConnection();
 
 // On sender side:
-var track = getATrackSomehow();
-var send = peerConnection.createTrackSender(track);
-// Possibly change send.params in an app-specific way.
-signalling.addTrack(send.params, function(acked) {
-  if (acked) {
-    send.start();
-    // And later:
-    send.stop();
+var stream = MyApp.getMediaStream();
+var localStream = peerConnection.createSendStream(stream);
+sendStream.description = MyApp.modifyStream(localStream.description)
+MyApp.signalAddStream(localStream.description, function(response)) {
+  if (!response.rejected) {
+    // Media will not be sent.
+    peerConnection.addStream(localStream);
   }
-});
+}
 
 // On receiver side:
-signalling.ontrackadded = function(rtpParams) {
-  var track = peerConnection.createTrackReceiver(rtpParams);
-  // Hookup track to <audio> or <video>.
-  // And later:
-  track.stop()
+MyApp.onAddStreamSignalled = function(streamDescription) {
+  var stream = peerConnection.createReceiveStream(streamDescription);
+  MyApp.renderStream(stream);
 }
 
-// In this exchange, the TrackSendParams signalled from the sender to the 
-// receiver may have looked something like this:
+// In this exchange, the MediaStreamDescription signalled from the 
+// sender to the receiver may have looked something like this:
+
 {
-  ssrcs: [12345, 23456, 34567],
-  ssrcGroups: [{
-    semantics: "SIM",
-    ssrcs: [12345, 23456, 34567]
-  }]
-}
-// or this:
-{
-  ssrcs: [45678],
-  ssrcGroups: []
+  tracks: [
+  {
+    id: "audio1",
+    kind: "audio",
+    flows: [
+    {
+      id: "main",
+      transportId: "transport1",
+      ssrc: 1111,
+      codecs: [
+      {
+        payloadType: 111,
+        name: "opus",
+        // ... more codec details
+      },
+      { 
+        payloadType: 112,
+        name: "pcmu",
+        // ... more codec details
+      }]
+   }]
+ },
+ {
+    id: "video1",
+    kind: "video",
+    flows: [
+    {
+      id: "sim0",
+      transportId: "transport2",
+      ssrc: 2222,
+      codecs: [
+      {
+        payloadType: 122,
+        name: "vp8"
+        // ... more codec details
+      }]
+   },
+   {
+     id: "sim1",
+     transportId: "transport2",
+     ssrc: 2223,
+     codecs: [
+     {
+       payloadType: 122,
+       name: "vp8",
+       // ... more codec details
+     }]
+   },
+   {
+     id: "sim2",
+     transportId: "transport2",
+     ssrc: 2224,
+     codecs: [
+     {
+       payloadType: 122,
+       name: "vp8",
+       // ... more codec details
+     }]
+   },
+
+   {
+     id: "sim0fec",
+     transportId: "transport2",
+     ssrc: 2225,
+     codecs: [
+     {
+       payloadType: 122,
+       name: "vp8",
+       // ...
+     }]
+   }],
+   flowGroups: [
+   {
+     semantics: "SIM",
+     ssrcs: [2222, 2223, 2224]
+   },
+   {
+     semantics: "FEC",
+     ssrcs: [2222, 2225]
+   }]
+ }]
 }
 ]]>
+
         </artwork>
       </figure>            
-    <section title="Questions" anchor="question">
-      <t>
-        Will the tracks added via the new methods in PeerConnection be
-        reflected in the SDP in future O/A?
-      </t>
-      <t>
-        No.  This works just like createDataChannel().  Only the
-        intial transport setup is reflected in the SDP.  Everything
-        after that is independent of the SDP.  Further, if the answer
-        to this question were "yes", we'd have to decide how to encode
-        multiple sources into SDP, and we'd be right back to Plan A
-        vs. Plan B.  
-      </t>
-      <t>
-        How will the new API methods be used to speak to legacy
-        devices with more than one audio source and more than one
-        video source?
-      </t>
-      <t>
-        The JS application would be free to implement whatever form of
-        signalling is necessary to speak to that legacy device,
-        whether it be Plan A SDP, Plan B SDP, CLUE, or something else.
-        The browser would not choose for it which legacy devices it
-        can speak to.
-      </t>
-    </section>
     <section title="IANA Considerations" anchor="iana">
       <t>
         None.
